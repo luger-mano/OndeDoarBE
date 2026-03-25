@@ -17,4 +17,9 @@ spring:
      password: ondedoar14
      driver-class-name: org.postgresql.Driver
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+
 
