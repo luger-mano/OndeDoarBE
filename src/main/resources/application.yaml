@@ -1,0 +1,20 @@
+spring:
+
+  application:
+    name: ondedoar
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+  datasource:
+     url: jdbc:postgresql://localhost:5432/ondedoar
+     username: root
+     password: ondedoar14
+     driver-class-name: org.postgresql.Driver
+
+
