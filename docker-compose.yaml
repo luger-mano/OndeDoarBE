@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgresql:
+    container_name: postgresql
+    restart: always
+    image: postgres:18
+    environment:
+      POSTGRES_PASSWORD: ondedoar14
+      POSTGRES_USER: root
+      POSTGRES_DB: ondedoar
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgresql-data:/var/lib/postgresql
+
+volumes:
+  postgresql-data:
