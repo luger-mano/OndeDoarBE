@@ -20,5 +20,4 @@ public class AddressRequestDto {
     private String longitude;
     private Zone zone;
     private String municipio;
-    private UUID userId;
 }
