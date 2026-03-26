@@ -26,16 +26,13 @@ public class UserCreatedRequestDto {
     @NotBlank(message = "Campo 'password' deve ser preenchido")
     private String password;
 
-    @NotBlank(message = "Campo 'address' deve ser preenchido")
     private AddressRequestDto address;
 
-    @NotBlank(message = "Campo 'dateBirth' deve ser preenchido")
     private LocalDate dateBirth;
 
     @NotBlank(message = "Campo 'bloodType' deve ser preenchido")
     private String bloodType;
 
-    @NotBlank(message = "Campo 'lastDonation' deve ser preenchido")
     private LocalDate lastDonation;
 
 }
