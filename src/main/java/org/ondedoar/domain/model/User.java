@@ -1,11 +1,12 @@
 package org.ondedoar.domain.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.Getter;
 import lombok.Setter;
+import org.ondedoar.adapter.request.security.LoginRequestDto;
 import org.ondedoar.domain.enums.BloodType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -30,7 +31,7 @@ public class User {
     @Column(name = "mail", unique = true)
     private String mail;
 
-    @Column(name = "password", nullable = false, length = 20)
+    @Column(name = "password", nullable = false)
     private String password;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -63,5 +64,9 @@ public class User {
         this.bloodType = bloodType;
         this.lastDonation = lastDonation;
         this.active = active;
+    }
+
+    public Boolean isLoginCorrect(LoginRequestDto requestDto, PasswordEncoder passwordEncoder){
+        return passwordEncoder.matches(requestDto.getPassword(), this.password);
     }
 }
