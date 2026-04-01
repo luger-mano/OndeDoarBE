@@ -1,0 +1,14 @@
+CREATE TABLE tb_addresses (
+    address_id BIGSERIAL PRIMARY KEY,
+    full_address VARCHAR(255),
+    cep VARCHAR(20),
+    bairro VARCHAR(100),
+    uf VARCHAR(10),
+    estado VARCHAR(100),
+    regiao VARCHAR(100),
+    area VARCHAR(100),
+    latitude VARCHAR(50),
+    longitude VARCHAR(50),
+    zone VARCHAR(50),
+    municipio VARCHAR(100)
+);
