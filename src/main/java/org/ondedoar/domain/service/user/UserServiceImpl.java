@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
             }
             User user = userMapper.userCreatedRequestToUser(requestDto);
 
-            Address address = addressService.createAddress(requestDto.getAddress(), user.getUserId());
+            Address address = addressService.createAddress(requestDto.getAddress());
             log.info("Saving the address into Address entity");
             user.setAddress(address);
 

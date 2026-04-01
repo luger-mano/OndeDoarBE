@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -21,10 +22,16 @@ public class BloodCenter {
     @Column(name = "name")
     private String name;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "tb_blood_center_phone",
+            joinColumns = @JoinColumn(name = "blood_center_id")
+    )
     @Column(name = "phone")
-    private String phone;
+    private List<String> phone;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "address_id")
     private Address address;
 
     @Column(name = "operation")
@@ -36,7 +43,7 @@ public class BloodCenter {
     public BloodCenter() {
     }
 
-    public BloodCenter(UUID bloodCenterId, String name, String phone, Address address, LocalTime operation, Double bloodStock) {
+    public BloodCenter(UUID bloodCenterId, String name, List<String> phone, Address address, LocalTime operation, Double bloodStock) {
         this.bloodCenterId = bloodCenterId;
         this.name = name;
         this.phone = phone;
