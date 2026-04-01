@@ -3,16 +3,13 @@ package org.ondedoar.domain.service.address;
 import jakarta.transaction.Transactional;
 import org.ondedoar.adapter.request.address.AddressRequestDto;
 import org.ondedoar.domain.model.Address;
-import org.ondedoar.domain.model.BloodCenter;
-import org.ondedoar.domain.model.User;
 import org.ondedoar.domain.repository.AddressRepository;
 import org.ondedoar.utils.mapper.AddressMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
 
 @Service
-public class AddressServiceImpl implements AddressService{
+public class AddressServiceImpl implements AddressService {
 
     private final AddressRepository addressRepository;
     private final AddressMapper addressMapper;
@@ -25,10 +22,9 @@ public class AddressServiceImpl implements AddressService{
 
     @Override
     @Transactional
-    public Address createAddress(AddressRequestDto requestDto, UUID userId) {
+    public Address createAddress(AddressRequestDto requestDto){
         try {
             Address address = addressMapper.addressRequestDtoToAddress(requestDto);
-            address.setUserId(userId);
 
             addressRepository.save(address);
 

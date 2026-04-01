@@ -8,5 +8,5 @@ import java.util.UUID;
 
 public interface AddressService {
 
-    Address createAddress(AddressRequestDto requestDto, UUID userId);
+    Address createAddress(AddressRequestDto requestDto);
 }
