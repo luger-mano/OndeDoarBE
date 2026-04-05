@@ -5,15 +5,14 @@ import lombok.RequiredArgsConstructor;
 import org.ondedoar.adapter.response.bloodcenter.BloodCenterResponseDto;
 import org.ondedoar.domain.service.bloodcenter.BloodCenterService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/center")
+@RequestMapping("/centers")
+@CrossOrigin(origins = "http://localhost:5173")
 @Tag(name = "Blood Center API", description = "Operations related to blood centers resource.")
 public class BloodCenterController {
 
