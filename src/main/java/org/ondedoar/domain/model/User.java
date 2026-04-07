@@ -35,6 +35,7 @@ public class User {
     private String password;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id")
     private Address address;
 
     @Column(name = "date_birth", nullable = false)
