@@ -10,5 +10,12 @@ CREATE TABLE tb_addresses (
     latitude VARCHAR(50),
     longitude VARCHAR(50),
     zone VARCHAR(50),
-    municipio VARCHAR(100)
+    municipio VARCHAR(100),
+    logradouro VARCHAR(100),
+    complemento VARCHAR(100),
+    unidade VARCHAR(100),
+    localidade VARCHAR(100),
+    ibge VARCHAR(100),
+    gia VARCHAR(100),
+    siafi VARCHAR(100)
 );
