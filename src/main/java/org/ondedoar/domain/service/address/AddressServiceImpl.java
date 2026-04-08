@@ -1,40 +1,49 @@
 package org.ondedoar.domain.service.address;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ondedoar.adapter.request.address.AddressRequestDto;
+import org.ondedoar.adapter.request.user.UserCoordinatesRequestDto;
+import org.ondedoar.adapter.response.user.UserCoordinatesResponseDto;
 import org.ondedoar.domain.model.Address;
 import org.ondedoar.domain.repository.AddressRepository;
+import org.ondedoar.infra.api.openstreetmap.UserGeolocationService;
+import org.ondedoar.infra.api.viacep.ViaCepService;
 import org.ondedoar.utils.mapper.AddressMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class AddressServiceImpl implements AddressService {
 
     private final AddressRepository addressRepository;
     private final AddressMapper addressMapper;
-
-    public AddressServiceImpl(AddressRepository addressRepository, AddressMapper addressMapper) {
-        this.addressRepository = addressRepository;
-        this.addressMapper = addressMapper;
-    }
+    private final UserGeolocationService userGeolocationService;
+    private final ViaCepService viaCepService;
 
     @Override
     @Transactional
-    public void createAddress(Address request) {
+    public Address createAddress(AddressRequestDto request) {
         try {
+            Address address = viaCepService.searchByCep(request.getCep());
+            address.setZone(request.getZone());
 
-            if (request == null) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "No Address found - [Path] : UserServiceImpl -> AddressServiceImpl");
-            }
+            UserCoordinatesResponseDto userGeolocationResponse = userGeolocationService
+                    .returnCoordinatesByLogradouroAndLocalidadeAndCep(new UserCoordinatesRequestDto(
+                            address.getLogradouro(),
+                            address.getLocalidade(),
+                            address.getCep()));
+
+            address.setLatitude(userGeolocationResponse.getLat());
+            address.setLongitude(userGeolocationResponse.getLon());
+            address.setZone(request.getZone());
 
             log.info("Address saved");
-            Address addressSaved = addressRepository.save(request);
-            addressMapper.addressToAddressResponseDto(addressSaved);
+            return addressRepository.save(address);
+
         } catch (Exception e) {
             log.error("Error saving address to database");
             throw new RuntimeException(e);
