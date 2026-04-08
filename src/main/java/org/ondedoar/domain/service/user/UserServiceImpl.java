@@ -8,6 +8,7 @@ import org.ondedoar.domain.model.Address;
 import org.ondedoar.domain.model.User;
 import org.ondedoar.domain.repository.UserRepository;
 import org.ondedoar.domain.service.address.AddressService;
+import org.ondedoar.infra.api.viacep.ViaCepService;
 import org.ondedoar.infra.exceptions.UserAlreadyExistsException;
 import org.ondedoar.utils.mapper.UserMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,12 +22,14 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final AddressService addressService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final ViaCepService viaCepService;
 
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, AddressService addressService, BCryptPasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, AddressService addressService, BCryptPasswordEncoder passwordEncoder, ViaCepService viaCepService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.addressService = addressService;
         this.passwordEncoder = passwordEncoder;
+        this.viaCepService = viaCepService;
     }
 
     @Override
@@ -38,12 +41,14 @@ public class UserServiceImpl implements UserService {
             if (userExist) {
                 throw new UserAlreadyExistsException("Mail of user already exists.");
             }
+
             User user = userMapper.userCreatedRequestToUser(requestDto);
 
-            Address address = addressService.createAddress(requestDto.getAddress());
+            Address address = viaCepService.searchByCep(requestDto.getAddress().getCep());
+            addressService.createAddress(address);
             log.info("Saving the address into Address entity");
-            user.setAddress(address);
 
+            user.setAddress(address);
             user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
             user.setActive(true);
 
