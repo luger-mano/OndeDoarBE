@@ -1,6 +1,7 @@
 package org.ondedoar.domain.service.user;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ondedoar.adapter.request.user.UserCreatedRequestDto;
 import org.ondedoar.adapter.response.user.UserCreatedResponseDto;
@@ -8,7 +9,6 @@ import org.ondedoar.domain.model.Address;
 import org.ondedoar.domain.model.User;
 import org.ondedoar.domain.repository.UserRepository;
 import org.ondedoar.domain.service.address.AddressService;
-import org.ondedoar.infra.api.viacep.ViaCepService;
 import org.ondedoar.infra.exceptions.UserAlreadyExistsException;
 import org.ondedoar.utils.mapper.UserMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,21 +16,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final AddressService addressService;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final ViaCepService viaCepService;
-
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, AddressService addressService, BCryptPasswordEncoder passwordEncoder, ViaCepService viaCepService) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-        this.addressService = addressService;
-        this.passwordEncoder = passwordEncoder;
-        this.viaCepService = viaCepService;
-    }
 
     @Override
     @Transactional
@@ -44,9 +36,8 @@ public class UserServiceImpl implements UserService {
 
             User user = userMapper.userCreatedRequestToUser(requestDto);
 
-            Address address = viaCepService.searchByCep(requestDto.getAddress().getCep());
-            addressService.createAddress(address);
-            log.info("Saving the address into Address entity");
+            Address address = addressService.createAddress(requestDto.getAddress());
+            log.info("Saving the address in database");
 
             user.setAddress(address);
             user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
