@@ -31,9 +31,6 @@ public class Address {
     @Column(name = "estado")
     private String estado;
 
-    @Column(name = "area")
-    private String area;
-
     @Column(name = "latitude")
     private String latitude;
 
@@ -47,20 +44,36 @@ public class Address {
     @Column(name = "municipio")
     private String municipio;
 
+    private String logradouro;
+    private String complemento;
+    private String unidade;
+    private String localidade;
+    private String regiao;
+    private String ibge;
+    private String gia;
+    private String siafi;
+
     public Address() {
     }
 
-    public Address(Long addressId, String fullAddress, String cep, String bairro, String uf, String estado, String area, String latitude, String longitude, Zone zone, String municipio) {
+    public Address(Long addressId, String fullAddress, String cep, String bairro, String uf, String estado, String latitude, String longitude, Zone zone, String municipio, String logradouro, String complemento, String unidade, String localidade, String regiao, String ibge, String gia, String siafi) {
         this.addressId = addressId;
         this.fullAddress = fullAddress;
         this.cep = cep;
         this.bairro = bairro;
         this.uf = uf;
         this.estado = estado;
-        this.area = area;
         this.latitude = latitude;
         this.longitude = longitude;
         this.zone = zone;
         this.municipio = municipio;
+        this.logradouro = logradouro;
+        this.complemento = complemento;
+        this.unidade = unidade;
+        this.localidade = localidade;
+        this.regiao = regiao;
+        this.ibge = ibge;
+        this.gia = gia;
+        this.siafi = siafi;
     }
 }

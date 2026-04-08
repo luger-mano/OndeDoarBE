@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import org.ondedoar.adapter.request.address.AddressRequestDto;
-import org.ondedoar.domain.model.Address;
 
 import java.time.LocalDate;
 

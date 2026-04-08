@@ -14,5 +14,6 @@ public class AddressResponseDto {
     private String longitude;
     private Zone zone;
     private String municipio;
+    private String regiao;
 
 }
