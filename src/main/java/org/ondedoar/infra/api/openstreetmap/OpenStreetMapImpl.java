@@ -135,7 +135,6 @@ public class OpenStreetMapImpl implements OpenStreetMapService, UserGeolocationS
                     return responseArray[0];
                 }
             }
-
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 
         } catch (RuntimeException | InterruptedException | IOException e) {
