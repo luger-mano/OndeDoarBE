@@ -6,8 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RouteResponseDto {
-    private Double duration;
-    private Double distance;
+    private Integer duration;
+    private Integer distance;
 
     public RouteResponseDto() {
     }

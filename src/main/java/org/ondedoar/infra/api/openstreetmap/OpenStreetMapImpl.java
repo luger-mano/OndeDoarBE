@@ -3,9 +3,11 @@ package org.ondedoar.infra.api.openstreetmap;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.ondedoar.adapter.request.openstreet.GeolocationDestinationRequestDto;
 import org.ondedoar.adapter.request.openstreet.GeolocationStartingPointRequestDto;
 import org.ondedoar.adapter.request.user.UserCoordinatesRequestDto;
+import org.ondedoar.adapter.response.openstreet.OpenStreetMapDoubleValuesDto;
 import org.ondedoar.adapter.response.openstreet.OpenStreetMapRouteResponseDto;
 import org.ondedoar.adapter.response.openstreet.RouteResponseDto;
 import org.ondedoar.adapter.response.user.UserCoordinatesResponseDto;
@@ -56,22 +58,12 @@ public class OpenStreetMapImpl implements OpenStreetMapService, UserGeolocationS
 
             if (!responseBody.isBlank()) {
                 log.info("[OpenStreetMapImpl | drivingRouteByGeolocation] - Object Java serializado: {}", responseBody);
-                var map = gson.fromJson(responseBody, OpenStreetMapRouteResponseDto.class);
+                var map = gson.fromJson(responseBody, OpenStreetMapDoubleValuesDto.class);
 
-                List<RouteResponseDto> routes = new ArrayList<>();
+                System.out.println(map.getRoutes().get(0).getDistance());
+                System.out.println(map.getRoutes().get(0).getDuration());
 
-                Double distance = map.getRoutes().get(0).getDistance() / 1000;
-                Double duration = map.getRoutes().get(0).getDuration() / 60;
-
-                RouteResponseDto routeResponseDto = new RouteResponseDto();
-                routeResponseDto.setDistance(distance);
-                routeResponseDto.setDuration(duration);
-
-                routes.add(routeResponseDto);
-
-                map.setRoutes(routes);
-
-                return map;
+                return setDistanceAndDuration(map);
             }
 
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -80,6 +72,27 @@ public class OpenStreetMapImpl implements OpenStreetMapService, UserGeolocationS
             log.error("Erro ao serializar o object Java para Json | drivingRouteByGeolocation: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    private static @NonNull OpenStreetMapRouteResponseDto setDistanceAndDuration(OpenStreetMapDoubleValuesDto map) {
+
+        double distanceMap = map.getRoutes().get(0).getDistance() / 1000;
+        double durationMap = map.getRoutes().get(0).getDuration() / 60;
+
+        List<RouteResponseDto> routes = new ArrayList<>();
+
+        int distance = (int) Math.ceil(distanceMap - 0.5);
+        int duration = (int) Math.ceil(durationMap - 0.5);
+
+        RouteResponseDto routeResponseDto = new RouteResponseDto();
+        routeResponseDto.setDistance(distance);
+        routeResponseDto.setDuration(duration);
+
+        routes.add(routeResponseDto);
+
+        OpenStreetMapRouteResponseDto mapRouteResponseDto = new OpenStreetMapRouteResponseDto();
+        mapRouteResponseDto.setRoutes(routes);
+        return mapRouteResponseDto;
     }
 
     @Override
