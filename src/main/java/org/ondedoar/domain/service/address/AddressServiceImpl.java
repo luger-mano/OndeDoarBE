@@ -64,6 +64,4 @@ public class AddressServiceImpl implements AddressService {
                 .map(addressMapper::addressEntityToAddressFilterRegionsResponseDto)
                 .collect(Collectors.toList());
     }
-
-
 }
