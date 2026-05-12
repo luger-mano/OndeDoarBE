@@ -8,7 +8,6 @@ import lombok.Setter;
 public class UserCreatedResponseDto {
 
     private String fullName;
-    private String phone;
     private String mail;
     private Boolean active;
 
