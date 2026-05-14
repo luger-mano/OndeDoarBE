@@ -13,6 +13,7 @@ import org.ondedoar.domain.repository.AddressRepository;
 import org.ondedoar.infra.api.openstreetmap.UserGeolocationService;
 import org.ondedoar.infra.api.viacep.ViaCepService;
 import org.ondedoar.utils.mapper.AddressMapper;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -56,6 +57,7 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
+    @Cacheable(cacheNames = "addressByRegion")
     public List<AddressFilterRegionsResponseDto> filterByRegion(String filter, String value) {
         Specification<Address> addressSpecification = AddressSpecifications.filterColumn(filter, value);
         List<Address> addresses = addressRepository.findAll(addressSpecification);
