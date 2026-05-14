@@ -10,10 +10,9 @@ import org.ondedoar.adapter.request.user.UserCreatedRequestDto;
 import org.ondedoar.adapter.response.user.UserCreatedResponseDto;
 import org.ondedoar.domain.service.user.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,8 +37,9 @@ public class UserController {
             }
     )
     @PostMapping
-    public ResponseEntity<UserCreatedResponseDto> createUser(@RequestBody @Valid UserCreatedRequestDto requestDto) {
-        var user = userService.createUser(requestDto);
+    public ResponseEntity<Map<String, String>> createUser(@RequestHeader("x-idempotency-key") String idempotencyKeyHeader,
+                                                          @RequestBody @Valid UserCreatedRequestDto requestDto) {
+        var user = userService.createUser(idempotencyKeyHeader, requestDto);
         return ResponseEntity.ok(user);
     }
 

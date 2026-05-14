@@ -1,8 +1,9 @@
 package org.ondedoar.domain.service.user;
 
 import org.ondedoar.adapter.request.user.UserCreatedRequestDto;
-import org.ondedoar.adapter.response.user.UserCreatedResponseDto;
+
+import java.util.Map;
 
 public interface UserService {
-    UserCreatedResponseDto createUser(UserCreatedRequestDto requestDto);
+    Map<String, String> createUser(String idempotencyKey, UserCreatedRequestDto requestDto);
 }
