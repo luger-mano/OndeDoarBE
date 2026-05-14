@@ -8,6 +8,7 @@ import org.ondedoar.domain.model.BloodCenter;
 import org.ondedoar.domain.model.BloodCenterSpecifications;
 import org.ondedoar.domain.repository.BloodCenterRepository;
 import org.ondedoar.utils.mapper.BloodCenterMapper;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ public class BloodCenterServiceImpl implements BloodCenterService {
     private final BloodCenterRepository bloodCenterRepository;
 
     @Override
+    @Cacheable(cacheNames = "bloodCenters")
     public List<BloodCenterResponseDto> getAllBloodCenters() {
         return bloodCenterRepository
                 .findAll()
@@ -32,6 +34,7 @@ public class BloodCenterServiceImpl implements BloodCenterService {
     }
 
     @Override
+    @Cacheable(cacheNames = "bloodCentersBySearch")
     public List<BloodCenterBySearchResponseDto> getBloodCentersByAddressContainingIgnoreCase(String search) {
         Specification<BloodCenter> bloodCenterSpecification = BloodCenterSpecifications.searchByTerm(search);
         List<BloodCenter> centers = bloodCenterRepository.findAll(bloodCenterSpecification);
