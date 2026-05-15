@@ -19,5 +19,8 @@ public class BloodCenterResponseDto {
     private AddressResponseDto address;
     private LocalTime operation;
     private Double bloodStock;
+    private String facadeImageUrl;
+    private String neighborhoodImageUrl;
+    private String municipalityImageUrl;
 
 }

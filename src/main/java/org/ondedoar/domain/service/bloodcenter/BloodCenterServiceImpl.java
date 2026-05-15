@@ -26,10 +26,25 @@ public class BloodCenterServiceImpl implements BloodCenterService {
     @Override
     @Cacheable(cacheNames = "bloodCenters")
     public List<BloodCenterResponseDto> getAllBloodCenters() {
+
+        final String BUCKET_S3_URL_IMAGE = "https://blood-centers-images.s3.us-east-1.amazonaws.com/";
+
         return bloodCenterRepository
                 .findAll()
                 .stream()
-                .map(bloodCenterMapper::bloodCenterToBloodCenterResponseDto)
+                .map(bloodCenter -> {
+                    BloodCenterResponseDto dto =
+                            bloodCenterMapper.bloodCenterToBloodCenterResponseDto(bloodCenter);
+                    dto.setFacadeImageUrl(BUCKET_S3_URL_IMAGE + "bloodcenter.svg");
+
+                    if (bloodCenter.getAddress().getMunicipio() == null) {
+                        dto.setNeighborhoodImageUrl(BUCKET_S3_URL_IMAGE + "neighborhood.svg");
+                    } else {
+                        dto.setMunicipalityImageUrl(BUCKET_S3_URL_IMAGE + "municipality.svg");
+                    }
+
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
