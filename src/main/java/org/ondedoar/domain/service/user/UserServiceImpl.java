@@ -4,12 +4,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ondedoar.adapter.request.user.UserCreatedRequestDto;
-import org.ondedoar.domain.model.Address;
 import org.ondedoar.domain.model.IdempotencyKey;
 import org.ondedoar.domain.model.User;
 import org.ondedoar.domain.repository.IdempotencyKeyRepository;
 import org.ondedoar.domain.repository.UserRepository;
-import org.ondedoar.domain.service.address.AddressService;
 import org.ondedoar.domain.service.idempotency.IdempotencyKeyService;
 import org.ondedoar.utils.mapper.UserMapper;
 import org.springframework.http.HttpStatus;
@@ -27,7 +25,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final AddressService addressService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final IdempotencyKeyRepository idempotencyKeyRepository;
     private final IdempotencyKeyService idempotencyKeyService;
@@ -41,32 +38,35 @@ public class UserServiceImpl implements UserService {
                     idempotencyKeyRepository.findByIdempotencyKey(idempotencyKeyHeader);
 
 
+            boolean userMailExist = userRepository.existsByMail(requestDto.getMail());
+
+            boolean userPhoneExist = userRepository.existsByPhone(requestDto.getPhone());
+
+            if (userMailExist) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Mail of user already exists.");
+            }
+
+            if (userPhoneExist) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Phone of user already exists.");
+            }
+
             if (idempotencyOpp.isPresent()) {
                 return mapResponseReceivedConsent(idempotencyOpp.get().getUserId());
             }
 
-            boolean userExist = userRepository.existsByMail(requestDto.getMail());
-
-            if (userExist) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Mail of user already exists.");
-            }
-
             User user = userMapper.userCreatedRequestToUser(requestDto);
 
-            Address address = addressService.createAddress(requestDto.getAddress());
-            log.info("Saving the address in database");
-
-            user.setAddress(address);
             user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
             user.setActive(true);
 
             User userSaved = userRepository.save(user);
-            log.info("User saved into User entity");
+            log.info("User saved");
 
             idempotencyKeyService.createIdempotencyKeyByKeyAndUserId(
                     idempotencyKeyHeader,
                     String.valueOf(userSaved.getUserId())
             );
+            log.info("idempotencyKey created");
 
             return mapResponseReceivedConsent(
                     String.valueOf(userSaved.getUserId())
