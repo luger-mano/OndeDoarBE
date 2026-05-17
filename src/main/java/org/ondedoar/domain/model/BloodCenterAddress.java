@@ -7,14 +7,15 @@ import lombok.Setter;
 import org.ondedoar.domain.enums.Zone;
 
 @Entity
-@Table(name = "TB_ADDRESSES")
+@Table(name = "tb_blood_center_addresses")
 @Getter
 @Setter
-public class Address {
+public class BloodCenterAddress {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long addressId;
+    @Column(name = "blood_center_address_id")
+    private Long bloodCenterAddressId;
 
     @Column(name = "full_address")
     private String fullAddress;
@@ -53,11 +54,11 @@ public class Address {
     private String gia;
     private String siafi;
 
-    public Address() {
+    public BloodCenterAddress() {
     }
 
-    public Address(Long addressId, String fullAddress, String cep, String bairro, String uf, String estado, String latitude, String longitude, Zone zone, String municipio, String logradouro, String complemento, String unidade, String localidade, String regiao, String ibge, String gia, String siafi) {
-        this.addressId = addressId;
+    public BloodCenterAddress(Long bloodCenterAddressId, String fullAddress, String cep, String bairro, String uf, String estado, String latitude, String longitude, Zone zone, String municipio, String logradouro, String complemento, String unidade, String localidade, String regiao, String ibge, String gia, String siafi) {
+        this.bloodCenterAddressId = bloodCenterAddressId;
         this.fullAddress = fullAddress;
         this.cep = cep;
         this.bairro = bairro;

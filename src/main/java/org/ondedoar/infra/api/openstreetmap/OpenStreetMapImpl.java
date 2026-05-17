@@ -5,12 +5,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.ondedoar.adapter.request.openstreet.GeolocationDestinationRequestDto;
-import org.ondedoar.adapter.request.openstreet.GeolocationStartingPointRequestDto;
 import org.ondedoar.adapter.request.user.UserCoordinatesRequestDto;
 import org.ondedoar.adapter.response.openstreet.OpenStreetMapDoubleValuesDto;
 import org.ondedoar.adapter.response.openstreet.OpenStreetMapRouteResponseDto;
 import org.ondedoar.adapter.response.openstreet.RouteResponseDto;
 import org.ondedoar.adapter.response.user.UserCoordinatesResponseDto;
+import org.ondedoar.domain.service.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,6 +24,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -31,16 +32,17 @@ import java.util.List;
 public class OpenStreetMapImpl implements OpenStreetMapService, UserGeolocationService{
 
     @Override
-    public OpenStreetMapRouteResponseDto routeByGeolocation(GeolocationStartingPointRequestDto startingPointRequestDto, GeolocationDestinationRequestDto destinationRequestDto) {
+    public OpenStreetMapRouteResponseDto routeByGeolocation(UUID userId, GeolocationDestinationRequestDto destinationRequestDto) {
         try {
+
             Gson gson = new Gson();
 
             HttpClient client = HttpClient.newHttpClient();
 
             String url = String.format(
                     "https://router.project-osrm.org/route/v1/driving/%s,%s;%s,%s?overview=false",
-                    startingPointRequestDto.getLongitudeStarting(),
-                    startingPointRequestDto.getLatitudeStarting(),
+                    "teste",
+                    "teste",
                     destinationRequestDto.getLongitudeDestination(),
                     destinationRequestDto.getLatitudeDestination()
             );
