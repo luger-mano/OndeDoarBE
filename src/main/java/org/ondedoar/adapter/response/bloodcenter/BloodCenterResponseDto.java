@@ -3,7 +3,7 @@ package org.ondedoar.adapter.response.bloodcenter;
 import lombok.Getter;
 import lombok.Setter;
 import org.ondedoar.adapter.response.address.AddressResponseDto;
-import org.ondedoar.domain.model.Address;
+import org.ondedoar.adapter.response.openstreet.RouteResponseDto;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -22,5 +22,6 @@ public class BloodCenterResponseDto {
     private String facadeImageUrl;
     private String neighborhoodImageUrl;
     private String municipalityImageUrl;
+    private List<RouteResponseDto> routes;
 
 }
