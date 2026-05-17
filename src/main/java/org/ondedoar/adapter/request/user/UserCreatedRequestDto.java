@@ -4,16 +4,16 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
-import org.ondedoar.adapter.request.address.AddressRequestDto;
-
-import java.time.LocalDate;
 
 @Getter
 @Setter
 public class UserCreatedRequestDto {
 
-    @NotBlank(message = "Campo 'fullName' deve ser preenchido")
-    private String fullName;
+    @NotBlank(message = "Campo 'userName' deve ser preenchido")
+    private String userName;
+
+    @NotBlank(message = "Campo 'middleName' deve ser preenchido")
+    private String middleName;
 
     @NotBlank(message = "Campo 'phone' deve ser preenchido")
     private String phone;
@@ -25,13 +25,9 @@ public class UserCreatedRequestDto {
     @NotBlank(message = "Campo 'password' deve ser preenchido")
     private String password;
 
-    private AddressRequestDto address;
-
-    private LocalDate dateBirth;
-
     @NotBlank(message = "Campo 'bloodType' deve ser preenchido")
     private String bloodType;
 
-    private LocalDate lastDonation;
-
+    @NotBlank(message = "Campo 'state' deve ser preenchido")
+    private String state;
 }
