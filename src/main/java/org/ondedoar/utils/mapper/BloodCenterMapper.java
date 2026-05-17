@@ -9,11 +9,11 @@ import org.ondedoar.domain.model.BloodCenter;
 @Mapper(componentModel = "spring")
 public interface BloodCenterMapper {
 
-    @Mapping(target = "address.bairro", source = "address.bairro", defaultValue = "s/b")
-    @Mapping(target = "address.municipio", source = "address.municipio", defaultValue = "s/m")
+    @Mapping(target = "address.bairro", source = "bloodCenterAddress.bairro", defaultValue = "s/b")
+    @Mapping(target = "address.municipio", source = "bloodCenterAddress.municipio", defaultValue = "s/m")
     BloodCenterResponseDto bloodCenterToBloodCenterResponseDto(BloodCenter bloodCenter);
 
-    @Mapping(target = "address.bairro", source = "address.bairro", defaultValue = "s/b")
-    @Mapping(target = "address.municipio", source = "address.municipio", defaultValue = "s/m")
+    @Mapping(target = "address.bairro", source = "bloodCenterAddress.bairro", defaultValue = "s/b")
+    @Mapping(target = "address.municipio", source = "bloodCenterAddress.municipio", defaultValue = "s/m")
     BloodCenterBySearchResponseDto bloodCenterEntityToBloodCenterBySearchResponseDto(BloodCenter bloodCenter);
 }

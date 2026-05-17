@@ -37,7 +37,7 @@ public class BloodCenterServiceImpl implements BloodCenterService {
                             bloodCenterMapper.bloodCenterToBloodCenterResponseDto(bloodCenter);
                     dto.setFacadeImageUrl(BUCKET_S3_URL_IMAGE + "bloodcenter.svg");
 
-                    if (bloodCenter.getAddress().getMunicipio() == null) {
+                    if (bloodCenter.getBloodCenterAddress().getMunicipio() == null) {
                         dto.setNeighborhoodImageUrl(BUCKET_S3_URL_IMAGE + "neighborhood.svg");
                     } else {
                         dto.setMunicipalityImageUrl(BUCKET_S3_URL_IMAGE + "municipality.svg");
@@ -49,7 +49,6 @@ public class BloodCenterServiceImpl implements BloodCenterService {
     }
 
     @Override
-    @Cacheable(cacheNames = "bloodCentersBySearch")
     public List<BloodCenterBySearchResponseDto> getBloodCentersByAddressContainingIgnoreCase(String search) {
         Specification<BloodCenter> bloodCenterSpecification = BloodCenterSpecifications.searchByTerm(search);
         List<BloodCenter> centers = bloodCenterRepository.findAll(bloodCenterSpecification);

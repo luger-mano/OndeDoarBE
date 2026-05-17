@@ -6,7 +6,7 @@ import org.ondedoar.domain.enums.Zone;
 
 @Getter
 @Setter
-public class AddressRequestDto {
+public class BloodCenterAddressRequestDto {
 
     private String fullAddress;
     private String cep;

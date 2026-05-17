@@ -31,8 +31,8 @@ public class BloodCenter {
     private List<String> phone;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "address_id")
-    private Address address;
+    @JoinColumn(name = "blood_center_address_id")
+    private BloodCenterAddress bloodCenterAddress;
 
     @Column(name = "operation")
     private LocalTime operation;
@@ -43,11 +43,11 @@ public class BloodCenter {
     public BloodCenter() {
     }
 
-    public BloodCenter(UUID bloodCenterId, String name, List<String> phone, Address address, LocalTime operation, Double bloodStock) {
+    public BloodCenter(UUID bloodCenterId, String name, List<String> phone, BloodCenterAddress bloodCenterAddress, LocalTime operation, Double bloodStock) {
         this.bloodCenterId = bloodCenterId;
         this.name = name;
         this.phone = phone;
-        this.address = address;
+        this.bloodCenterAddress = bloodCenterAddress;
         this.operation = operation;
         this.bloodStock = bloodStock;
     }
