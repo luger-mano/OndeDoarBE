@@ -2,7 +2,7 @@ package org.ondedoar.infra.api.viacep;
 
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import org.ondedoar.domain.model.Address;
+import org.ondedoar.domain.model.BloodCenterAddress;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -18,7 +18,7 @@ import java.net.http.HttpResponse;
 public class ViaCepImpl implements ViaCepService {
 
     @Override
-    public Address searchByCep(String cep) {
+    public BloodCenterAddress searchByCep(String cep) {
         try {
             Gson gson = new Gson();
 
@@ -36,7 +36,7 @@ public class ViaCepImpl implements ViaCepService {
 
             if (!responseBody.isBlank()) {
                 log.info("[AddressServiceImpl] - Object Java serializado: {}", responseBody);
-                return gson.fromJson(responseBody, Address.class);
+                return gson.fromJson(responseBody, BloodCenterAddress.class);
             }
 
             log.info("Não foi possível serializar o object Java para Json");

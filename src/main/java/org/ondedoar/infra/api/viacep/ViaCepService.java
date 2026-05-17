@@ -1,7 +1,7 @@
 package org.ondedoar.infra.api.viacep;
 
-import org.ondedoar.domain.model.Address;
+import org.ondedoar.domain.model.BloodCenterAddress;
 
 public interface ViaCepService {
-    Address searchByCep(String cep);
+    BloodCenterAddress searchByCep(String cep);
 }

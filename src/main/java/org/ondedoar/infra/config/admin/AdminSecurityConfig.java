@@ -34,7 +34,7 @@ public class AdminSecurityConfig implements CommandLineRunner {
         Role roleAdm = roleRepository.findByName(Role.Values.SUPER_ADMIN.name())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role Not Found"));
 
-        var userAdm = userRepository.findByFullName("adm");
+        var userAdm = userRepository.findByUserName("adm");
 
         userAdm.ifPresentOrElse(
                 user -> {
@@ -42,7 +42,8 @@ public class AdminSecurityConfig implements CommandLineRunner {
                 () -> {
                     User adm = new User();
 
-                    adm.setFullName("adm");
+                    adm.setUserName("adm");
+                    adm.setMiddleName("od");
                     adm.setMail("adm@ondedoar.com");
                     adm.setPhone("1234567890");
                     adm.setDateBirth(LocalDate.of(2000, Month.MAY, 20));

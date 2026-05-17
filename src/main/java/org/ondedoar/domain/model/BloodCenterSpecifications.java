@@ -13,7 +13,7 @@ public class BloodCenterSpecifications {
 
             String pattern = "%" + term.toLowerCase() + "%";
 
-            Join<BloodCenter, Address> addressJoin = root.join("address");
+            Join<BloodCenter, BloodCenterAddress> addressJoin = root.join("bloodCenterAddress");
 
             return cb.or(
                     cb.like(cb.lower(root.get("name")), pattern),

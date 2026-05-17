@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.ondedoar.adapter.request.security.LoginRequestDto;
 import org.ondedoar.domain.enums.BloodType;
+import org.ondedoar.domain.enums.BrazilianState;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
@@ -23,10 +24,13 @@ public class User {
     @Column(name = "user_id")
     private UUID userId;
 
-    @Column(name = "full_name", nullable = false, length = 40)
-    private String fullName;
+    @Column(name = "user_name", nullable = false, length = 40)
+    private String userName;
 
-    @Column(name = "phone", nullable = false, length = 11)
+    @Column(name = "middleName", nullable = false, length = 40)
+    private String middleName;
+
+    @Column(name = "phone", nullable = false, length = 11, unique = true)
     private String phone;
 
     @Column(name = "mail", unique = true)
@@ -35,16 +39,16 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_id")
-    private Address address;
-
-    @Column(name = "date_birth", nullable = false)
+    @Column(name = "date_birth")
     private LocalDate dateBirth;
 
     @Column(name = "blood_type")
     @Enumerated(EnumType.STRING)
     private BloodType bloodType;
+
+    @Column(name = "brazilian_state")
+    @Enumerated(EnumType.STRING)
+    private BrazilianState state;
 
     @PastOrPresent
     @Column(name = "last_donation")
@@ -64,16 +68,19 @@ public class User {
     public User() {
     }
 
-    public User(UUID userId, String fullName, String phone, String mail, String password, LocalDate dateBirth, BloodType bloodType, LocalDate lastDonation, Boolean active) {
+    public User(UUID userId, String userName, String middleName, String phone, String mail, String password, LocalDate dateBirth, BloodType bloodType, BrazilianState state, LocalDate lastDonation, Boolean active, Set<Role> roles) {
         this.userId = userId;
-        this.fullName = fullName;
+        this.userName = userName;
+        this.middleName = middleName;
         this.phone = phone;
         this.mail = mail;
         this.password = password;
         this.dateBirth = dateBirth;
         this.bloodType = bloodType;
+        this.state = state;
         this.lastDonation = lastDonation;
         this.active = active;
+        this.roles = roles;
     }
 
     public Boolean isLoginCorrect(LoginRequestDto requestDto, PasswordEncoder passwordEncoder){

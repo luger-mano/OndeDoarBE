@@ -3,9 +3,9 @@ package org.ondedoar.domain.model;
 import org.ondedoar.domain.enums.Zone;
 import org.springframework.data.jpa.domain.Specification;
 
-public class AddressSpecifications {
+public class BloodCenterAddressSpecifications {
 
-    public static Specification<Address> filterColumn(String column, Object value){
+    public static Specification<BloodCenterAddress> filterColumn(String column, Object value){
         return (root, query, cb) -> {
             if (value == null || column == null) {
                 return cb.conjunction();

@@ -1,5 +1,6 @@
 package org.ondedoar.domain.repository;
 
+import jakarta.validation.constraints.NotBlank;
 import org.ondedoar.domain.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -11,5 +12,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByMail(String mail);
 
-    Optional<User> findByFullName(String adm);
+    Optional<User> findByUserName(String adm);
+
+    boolean existsByPhone(@NotBlank(message = "Campo 'phone' deve ser preenchido") String phone);
 }
