@@ -3,6 +3,7 @@ package org.ondedoar.adapter.controller.bloodcenter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.ondedoar.adapter.response.bloodcenter.BloodCenterResponseDto;
+import org.ondedoar.adapter.response.address.NeighborhoodsZoneResponseDto;
 import org.ondedoar.domain.service.bloodcenter.BloodCenterService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,13 @@ public class BloodCenterController {
     @GetMapping("/filter/search")
     public ResponseEntity<List<BloodCenterResponseDto>> getBloodCentersBySearch(@RequestParam String search) {
         var response = bloodCenterService.getBloodCentersByAddressContainingIgnoreCase(search);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/filter/zone/neighborhoods")
+    public ResponseEntity<List<NeighborhoodsZoneResponseDto>> getBloodCentersGroupedByZone() {
+        var response = bloodCenterService.getBloodCentersGroupedByZone();
 
         return ResponseEntity.ok(response);
     }
