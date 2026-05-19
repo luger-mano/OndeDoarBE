@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.ondedoar.adapter.request.openstreet.GeolocationDestinationRequestDto;
+import org.ondedoar.adapter.request.openstreet.GeolocationStartingPointRequestDto;
 import org.ondedoar.adapter.request.user.UserCoordinatesRequestDto;
 import org.ondedoar.adapter.response.openstreet.OpenStreetMapDoubleValuesDto;
 import org.ondedoar.adapter.response.openstreet.OpenStreetMapRouteResponseDto;
@@ -32,7 +33,7 @@ import java.util.UUID;
 public class OpenStreetMapImpl implements OpenStreetMapService, UserGeolocationService{
 
     @Override
-    public OpenStreetMapRouteResponseDto routeByGeolocation(UUID userId, GeolocationDestinationRequestDto destinationRequestDto) {
+    public OpenStreetMapRouteResponseDto routeByGeolocation(GeolocationStartingPointRequestDto startingPointRequestDto, GeolocationDestinationRequestDto destinationRequestDto) {
         try {
 
             Gson gson = new Gson();
