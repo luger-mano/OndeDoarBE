@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.ondedoar.adapter.response.address.AddressResponseDto;
 import org.ondedoar.adapter.response.openstreet.RouteResponseDto;
 
-import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,8 +18,6 @@ public class BloodCenterResponseDto {
     private AddressResponseDto address;
     private String operation;
     private String facadeImageUrl;
-    private String neighborhoodImageUrl;
-    private String municipalityImageUrl;
     private List<RouteResponseDto> routes;
 
 }

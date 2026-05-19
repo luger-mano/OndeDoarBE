@@ -2,7 +2,7 @@ CREATE TABLE tb_blood_centers (
     blood_center_id UUID PRIMARY KEY,
     name VARCHAR(255),
     blood_center_address_id BIGINT,
-    operation VARCHAR(255),
+    operation VARCHAR(80),
 
     CONSTRAINT fk_blood_center_address
         FOREIGN KEY (blood_center_address_id)

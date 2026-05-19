@@ -2,6 +2,7 @@ package org.ondedoar.adapter.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.ondedoar.adapter.request.openstreet.GeolocationDestinationRequestDto;
+import org.ondedoar.adapter.request.openstreet.GeolocationStartingPointRequestDto;
 import org.ondedoar.adapter.response.openstreet.OpenStreetMapRouteResponseDto;
 import org.ondedoar.infra.api.openstreetmap.OpenStreetMapService;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +19,10 @@ public class OpenStreetMapController {
 
     @GetMapping
     public ResponseEntity<OpenStreetMapRouteResponseDto> searchRouteByGeolocation(
-            @RequestParam UUID userId,
+            @ModelAttribute GeolocationStartingPointRequestDto startingPointRequestDto,
             @ModelAttribute GeolocationDestinationRequestDto destinationRequestDto){
 
-        var response = openStreetMapService.routeByGeolocation(userId, destinationRequestDto);
+        var response = openStreetMapService.routeByGeolocation(startingPointRequestDto, destinationRequestDto);
         return ResponseEntity.ok(response);
     }
 }

@@ -1,4 +1,4 @@
-package org.ondedoar.adapter.controller;
+package org.ondedoar.adapter.controller.security;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

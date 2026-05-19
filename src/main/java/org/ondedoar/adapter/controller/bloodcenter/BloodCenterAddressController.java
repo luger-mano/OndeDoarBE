@@ -1,4 +1,4 @@
-package org.ondedoar.adapter.controller;
+package org.ondedoar.adapter.controller.bloodcenter;
 
 import lombok.RequiredArgsConstructor;
 import org.ondedoar.adapter.response.address.AddressFilterRegionsResponseDto;

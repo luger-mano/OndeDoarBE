@@ -1,4 +1,4 @@
-package org.ondedoar.domain.model;
+package org.ondedoar.domain.model.bloodcenter;
 
 import org.ondedoar.domain.enums.Zone;
 import org.springframework.data.jpa.domain.Specification;
