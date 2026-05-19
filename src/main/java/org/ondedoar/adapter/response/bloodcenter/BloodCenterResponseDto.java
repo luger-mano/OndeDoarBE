@@ -17,8 +17,7 @@ public class BloodCenterResponseDto {
     private String name;
     private List<String> phone;
     private AddressResponseDto address;
-    private LocalTime operation;
-    private Double bloodStock;
+    private String operation;
     private String facadeImageUrl;
     private String neighborhoodImageUrl;
     private String municipalityImageUrl;
