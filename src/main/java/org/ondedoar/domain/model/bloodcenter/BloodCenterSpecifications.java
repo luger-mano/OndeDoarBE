@@ -1,4 +1,4 @@
-package org.ondedoar.domain.model;
+package org.ondedoar.domain.model.bloodcenter;
 
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;

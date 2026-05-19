@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.ondedoar.adapter.response.bloodcenter.BloodCenterBySearchResponseDto;
 import org.ondedoar.adapter.response.bloodcenter.BloodCenterResponseDto;
-import org.ondedoar.domain.model.BloodCenter;
+import org.ondedoar.domain.model.bloodcenter.BloodCenter;
 
 @Mapper(componentModel = "spring")
 public interface BloodCenterMapper {

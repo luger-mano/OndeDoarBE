@@ -1,4 +1,4 @@
-package org.ondedoar.domain.model;
+package org.ondedoar.domain.model.bloodcenter;
 
 import jakarta.persistence.*;
 import lombok.Getter;
