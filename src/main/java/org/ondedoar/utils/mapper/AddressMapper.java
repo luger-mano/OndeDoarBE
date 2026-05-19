@@ -3,7 +3,7 @@ package org.ondedoar.utils.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.ondedoar.adapter.response.address.AddressFilterRegionsResponseDto;
-import org.ondedoar.domain.model.BloodCenterAddress;
+import org.ondedoar.domain.model.bloodcenter.BloodCenterAddress;
 
 @Mapper(componentModel = "spring")
 public interface AddressMapper {
