@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,20 +34,16 @@ public class BloodCenter {
     private BloodCenterAddress bloodCenterAddress;
 
     @Column(name = "operation")
-    private LocalTime operation;
-
-    @Column(name = "blood_stock")
-    private Double bloodStock;
+    private String operation;
 
     public BloodCenter() {
     }
 
-    public BloodCenter(UUID bloodCenterId, String name, List<String> phone, BloodCenterAddress bloodCenterAddress, LocalTime operation, Double bloodStock) {
+    public BloodCenter(UUID bloodCenterId, String name, List<String> phone, BloodCenterAddress bloodCenterAddress, String operation) {
         this.bloodCenterId = bloodCenterId;
         this.name = name;
         this.phone = phone;
         this.bloodCenterAddress = bloodCenterAddress;
         this.operation = operation;
-        this.bloodStock = bloodStock;
     }
 }

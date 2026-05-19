@@ -24,7 +24,7 @@ public class BloodCenterServiceImpl implements BloodCenterService {
     private final BloodCenterRepository bloodCenterRepository;
 
     @Override
-    @Cacheable(cacheNames = "bloodCenters")
+    @Cacheable("bloodCenters")
     public List<BloodCenterResponseDto> getAllBloodCenters() {
 
         final String BUCKET_S3_URL_IMAGE = "https://blood-centers-images.s3.us-east-1.amazonaws.com/";
@@ -37,15 +37,23 @@ public class BloodCenterServiceImpl implements BloodCenterService {
                             bloodCenterMapper.bloodCenterToBloodCenterResponseDto(bloodCenter);
                     dto.setFacadeImageUrl(BUCKET_S3_URL_IMAGE + "bloodcenter.svg");
 
-                    if (bloodCenter.getBloodCenterAddress().getMunicipio() == null) {
-                        dto.setNeighborhoodImageUrl(BUCKET_S3_URL_IMAGE + "neighborhood.svg");
-                    } else {
-                        dto.setMunicipalityImageUrl(BUCKET_S3_URL_IMAGE + "municipality.svg");
-                    }
+                    verifyBloodCenterRegionImages(bloodCenter, dto, BUCKET_S3_URL_IMAGE);
+
+
 
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+
+
+    private static void verifyBloodCenterRegionImages(BloodCenter bloodCenter, BloodCenterResponseDto dto, String BUCKET_S3_URL_IMAGE) {
+        if (bloodCenter.getBloodCenterAddress().getMunicipio() == null) {
+            dto.setNeighborhoodImageUrl(BUCKET_S3_URL_IMAGE + "neighborhood.svg");
+        } else {
+            dto.setMunicipalityImageUrl(BUCKET_S3_URL_IMAGE + "municipality.svg");
+        }
     }
 
     @Override
