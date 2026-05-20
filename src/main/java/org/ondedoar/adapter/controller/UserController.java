@@ -25,7 +25,6 @@ public class UserController {
 
     private final UserService userService;
 
-
     @Operation(
             summary = "Create user",
             description = "Creates a new user resource in the system."
