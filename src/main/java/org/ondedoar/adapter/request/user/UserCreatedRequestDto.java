@@ -25,7 +25,6 @@ public class UserCreatedRequestDto {
     @NotBlank(message = "Campo 'password' deve ser preenchido")
     private String password;
 
-    @NotBlank(message = "Campo 'bloodType' deve ser preenchido")
     private String bloodType;
 
     @NotBlank(message = "Campo 'state' deve ser preenchido")
