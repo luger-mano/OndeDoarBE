@@ -13,7 +13,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/centers")
-@CrossOrigin(origins = "http://localhost:5173")
 @Tag(name = "Blood Center API", description = "Operations related to blood centers resource.")
 public class BloodCenterController {
 

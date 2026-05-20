@@ -20,7 +20,6 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
-@CrossOrigin(origins = "http://localhost:5173")
 @Tag(name = "User API", description = "Operations related to users resource.")
 public class UserController {
 

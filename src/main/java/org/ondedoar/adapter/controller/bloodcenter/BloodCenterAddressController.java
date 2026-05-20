@@ -11,7 +11,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/address")
-@CrossOrigin(origins = "http://localhost:5173")
 public class BloodCenterAddressController {
 
     private final BloodCenterAddressService bloodCenterAddressService;
