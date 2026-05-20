@@ -4,11 +4,16 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ondedoar.adapter.request.user.UserCreatedRequestDto;
+import org.ondedoar.adapter.request.user.UserUpdatedRequestDto;
+import org.ondedoar.adapter.response.user.UserResponseDto;
+import org.ondedoar.domain.enums.BloodType;
+import org.ondedoar.domain.enums.BrazilianState;
 import org.ondedoar.domain.model.IdempotencyKey;
 import org.ondedoar.domain.model.User;
 import org.ondedoar.domain.repository.IdempotencyKeyRepository;
 import org.ondedoar.domain.repository.UserRepository;
 import org.ondedoar.domain.service.idempotency.IdempotencyKeyService;
+import org.ondedoar.infra.exceptions.UserNotFoundException;
 import org.ondedoar.utils.mapper.UserMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -33,6 +39,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public Map<String, String> createUser(String idempotencyKeyHeader, UserCreatedRequestDto requestDto) {
         try {
+            String statusIdempotency;
 
             Optional<IdempotencyKey> idempotencyOpp =
                     idempotencyKeyRepository.findByIdempotencyKey(idempotencyKeyHeader);
@@ -51,7 +58,8 @@ public class UserServiceImpl implements UserService {
             }
 
             if (idempotencyOpp.isPresent()) {
-                return mapResponseReceivedConsent(idempotencyOpp.get().getUserId());
+                statusIdempotency = "isPresent";
+                return mapResponseReceivedConsent(idempotencyOpp.get().getUserId(), statusIdempotency);
             }
 
             User user = userMapper.userCreatedRequestToUser(requestDto);
@@ -67,9 +75,10 @@ public class UserServiceImpl implements UserService {
                     String.valueOf(userSaved.getUserId())
             );
             log.info("idempotencyKey created");
+            String statusUser = "created";
 
             return mapResponseReceivedConsent(
-                    String.valueOf(userSaved.getUserId())
+                    String.valueOf(userSaved.getUserId()), statusUser
             );
         } catch (Exception e) {
             log.error("Error saving user to database", e);
@@ -77,11 +86,65 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public Map<String, String> mapResponseReceivedConsent(String userId) {
+    @Override
+    @Transactional
+    public Map<String, String> updateUser(UUID id, UserUpdatedRequestDto requestDto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        boolean userMailExist = userRepository.existsByMail(requestDto.getMail());
+        boolean userPhoneExist = userRepository.existsByPhone(requestDto.getPhone());
+
+        if (userMailExist && !user.getMail().equals(requestDto.getMail())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Mail of user already exists.");
+        }
+
+        if (userPhoneExist && !user.getPhone().equals(requestDto.getPhone())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Phone of user already exists.");
+        }
+
+        user.setUserName(requestDto.getUserName());
+        user.setMiddleName(requestDto.getMiddleName());
+        user.setMail(requestDto.getMail());
+        user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
+        user.setPhone(requestDto.getPhone());
+        user.setBloodType(Enum.valueOf(BloodType.class, requestDto.getBloodType()));
+        user.setState(Enum.valueOf(BrazilianState.class, requestDto.getState()));
+
+        User userUpdated = userRepository.save(user);
+
+        log.info("User updated");
+
+        return mapResponseReceivedConsent(
+                String.valueOf(userUpdated.getUserId()),
+                "updated"
+        );
+    }
+
+    @Override
+    public UserResponseDto getUserById(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        return userMapper.userToUserResponseDto(user);
+    }
+
+    @Override
+    @Transactional
+    public Map<String, String> deleteUserById(UUID id) {
+        userRepository.deleteById(id);
+        String statusUser = "deleted";
+
+        return mapResponseReceivedConsent(
+                String.valueOf(id.toString()
+                ), statusUser);
+    }
+
+    public Map<String, String> mapResponseReceivedConsent(String userId, String status) {
         return Map.of(
                 "userId", userId,
                 "message", "user request received",
-                "status", "processed"
+                "status", status
         );
     }
 }
