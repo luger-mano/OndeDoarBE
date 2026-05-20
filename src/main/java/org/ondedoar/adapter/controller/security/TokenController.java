@@ -17,7 +17,6 @@ import javax.security.auth.login.CredentialException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/login")
-@CrossOrigin(origins = "http://localhost:5173")
 @Tag(name = "Token API", description = "Generates a token for a user")
 public class TokenController {
 
