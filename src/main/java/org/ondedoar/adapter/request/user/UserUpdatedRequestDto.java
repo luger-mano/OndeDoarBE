@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserCreatedRequestDto {
+public class UserUpdatedRequestDto {
 
     @NotBlank(message = "Campo 'userName' deve ser preenchido")
     private String userName;
@@ -25,6 +25,7 @@ public class UserCreatedRequestDto {
     @NotBlank(message = "Campo 'password' deve ser preenchido")
     private String password;
 
+    @NotBlank(message = "Campo 'bloodType' deve ser preenchido")
     private String bloodType;
 
     @NotBlank(message = "Campo 'state' deve ser preenchido")

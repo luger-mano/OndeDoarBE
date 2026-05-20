@@ -50,6 +50,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(SWAGGER_WHITELIST).permitAll()
                         .requestMatchers(HttpMethod.POST, "/user").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/user/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/user/{id}").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/user/{id}").permitAll()
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/centers").permitAll()
                         .requestMatchers(HttpMethod.GET, "/centers/filter/search").permitAll()

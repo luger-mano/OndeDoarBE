@@ -7,12 +7,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.ondedoar.adapter.request.user.UserCreatedRequestDto;
-import org.ondedoar.adapter.response.user.UserCreatedResponseDto;
+import org.ondedoar.adapter.request.user.UserUpdatedRequestDto;
+import org.ondedoar.adapter.response.user.UserResponseDto;
 import org.ondedoar.domain.service.user.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,5 +44,28 @@ public class UserController {
         var user = userService.createUser(idempotencyKeyHeader, requestDto);
         return ResponseEntity.ok(user);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Map<String, String>> updateUser(@PathVariable UUID id,
+                                                          @RequestBody @Valid UserUpdatedRequestDto requestDto) {
+        var user = userService.updateUser(id, requestDto);
+
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDto> getById(@PathVariable UUID id) {
+        var user = userService.getUserById(id);
+
+        return ResponseEntity.ok(user);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, String>> deleteById(@PathVariable UUID id) {
+        var user = userService.deleteUserById(id);
+
+        return ResponseEntity.ok(user);
+    }
+
 
 }

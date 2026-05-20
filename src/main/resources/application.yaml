@@ -20,7 +20,7 @@ spring:
     lock-retry-count: 10
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/ondedoar
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/ondedoar
     username: root
     password: ondedoar14
     driver-class-name: org.postgresql.Driver
