@@ -18,8 +18,6 @@ public class BloodCenterResponseDto {
     private AddressResponseDto address;
     private String operation;
     private String facadeImageUrl;
-    private String neighborhoodImageUrl;
-    private String municipalityImageUrl;
     private List<RouteResponseDto> routes;
 
 }
