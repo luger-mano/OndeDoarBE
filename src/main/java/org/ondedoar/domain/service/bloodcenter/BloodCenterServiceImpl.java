@@ -50,6 +50,7 @@ public class BloodCenterServiceImpl implements BloodCenterService {
     }
 
     @Override
+    @Cacheable("bloodCentersSearch")
     public List<BloodCenterResponseDto> getBloodCentersByAddressContainingIgnoreCase(String search) {
 
         Specification<BloodCenter> bloodCenterSpecification = BloodCenterSpecifications.searchByTerm(search);
@@ -69,6 +70,7 @@ public class BloodCenterServiceImpl implements BloodCenterService {
     }
 
     @Override
+    @Cacheable("bloodCentersGroupedByZone")
     public List<NeighborhoodsZoneResponseDto> getBloodCentersGroupedByZone() {
 
         List<BloodCenter> bloodCenters = bloodCenterRepository.findAll();

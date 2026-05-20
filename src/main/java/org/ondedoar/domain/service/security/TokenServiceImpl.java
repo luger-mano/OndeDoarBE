@@ -60,8 +60,8 @@ public class TokenServiceImpl implements TokenService {
 
             return response;
         } catch (RuntimeException e) {
-            log.error("It was not possible to generate a token");
-            throw new RuntimeException(e);
+            log.error("It was not possible to generate a token", e);
+            throw e;
         }
     }
 }
