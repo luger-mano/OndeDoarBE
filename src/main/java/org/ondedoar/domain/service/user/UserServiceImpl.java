@@ -17,6 +17,7 @@ import org.ondedoar.infra.exceptions.UserNotFoundException;
 import org.ondedoar.utils.mapper.UserMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -88,9 +89,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Map<String, String> updateUser(UUID id, UserUpdatedRequestDto requestDto) {
+    public Map<String, String> updateUser(UUID id, UserUpdatedRequestDto requestDto, JwtAuthenticationToken token) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        String status;
 
         boolean userMailExist = userRepository.existsByMail(requestDto.getMail());
         boolean userPhoneExist = userRepository.existsByPhone(requestDto.getPhone());
@@ -103,22 +106,40 @@ public class UserServiceImpl implements UserService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Phone of user already exists.");
         }
 
-        user.setUserName(requestDto.getUserName());
-        user.setMiddleName(requestDto.getMiddleName());
-        user.setMail(requestDto.getMail());
-        user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
-        user.setPhone(requestDto.getPhone());
-        user.setBloodType(Enum.valueOf(BloodType.class, requestDto.getBloodType()));
-        user.setState(Enum.valueOf(BrazilianState.class, requestDto.getState()));
+        if (user.getUserId().equals(UUID.fromString(token.getName()))) {
 
-        User userUpdated = userRepository.save(user);
+            user.setUserName(requestDto.getUserName());
+            user.setMiddleName(requestDto.getMiddleName());
+            user.setMail(requestDto.getMail());
 
-        log.info("User updated");
+            if (requestDto.getPassword() != null &&
+                    !requestDto.getPassword().isBlank()) {
 
-        return mapResponseReceivedConsent(
-                String.valueOf(userUpdated.getUserId()),
-                "updated"
-        );
+                user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
+            }
+
+            user.setPhone(requestDto.getPhone());
+            user.setBloodType(Enum.valueOf(BloodType.class, requestDto.getBloodType()));
+            user.setState(Enum.valueOf(BrazilianState.class, requestDto.getState()));
+
+            User userUpdated = userRepository.save(user);
+
+            log.info("User updated");
+
+            status = "updated";
+
+            return mapResponseReceivedConsent(
+                    String.valueOf(userUpdated.getUserId()),
+                    status
+            );
+
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "You cannot update another user"
+            );
+        }
+
     }
 
     @Override
@@ -131,13 +152,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Map<String, String> deleteUserById(UUID id) {
-        userRepository.deleteById(id);
-        String statusUser = "deleted";
+    public Map<String, String> deleteUserById(UUID id, JwtAuthenticationToken token) {
 
-        return mapResponseReceivedConsent(
-                String.valueOf(id.toString()
-                ), statusUser);
+        var user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        String status;
+
+
+        if (user.getUserId().equals(UUID.fromString(token.getName()))) {
+            userRepository.deleteById(id);
+
+            status = "deleted";
+
+            return mapResponseReceivedConsent(
+                    String.valueOf(id.toString()
+                    ), status);
+        } else {
+            status = "forbidden";
+
+            return mapResponseReceivedConsent(
+                    String.valueOf(id.toString()
+                    ), status);
+        }
+
     }
 
     public Map<String, String> mapResponseReceivedConsent(String userId, String status) {

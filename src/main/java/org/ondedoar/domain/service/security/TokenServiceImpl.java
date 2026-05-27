@@ -41,7 +41,7 @@ public class TokenServiceImpl implements TokenService {
                 throw new CredentialException("Passwords don't match");
             }
             Instant now = Instant.now();
-            long expireIn = 500L;
+            long expireIn = 1800L;
 
             JwtClaimsSet claims = JwtClaimsSet.builder()
                     .issuer("ondedoarbe")
@@ -54,6 +54,7 @@ public class TokenServiceImpl implements TokenService {
             log.info("Token encode claim configurations");
 
             LoginResponseDto response = new LoginResponseDto();
+            response.setUserId(user.getUserId());
             response.setAccessToken(jwtValue);
             response.setExpireIn(expireIn);
             log.info("Setting values for attributes");
