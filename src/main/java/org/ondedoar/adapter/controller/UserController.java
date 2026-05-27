@@ -11,10 +11,12 @@ import org.ondedoar.adapter.request.user.UserUpdatedRequestDto;
 import org.ondedoar.adapter.response.user.UserResponseDto;
 import org.ondedoar.domain.service.user.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.UUID;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -23,7 +25,6 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
-
 
     @Operation(
             summary = "Create user",
@@ -47,8 +48,9 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, String>> updateUser(@PathVariable UUID id,
-                                                          @RequestBody @Valid UserUpdatedRequestDto requestDto) {
-        var user = userService.updateUser(id, requestDto);
+                                                          @RequestBody @Valid UserUpdatedRequestDto requestDto,
+                                                          JwtAuthenticationToken token) {
+        var user = userService.updateUser(id, requestDto, token);
 
         return ResponseEntity.ok(user);
     }
@@ -61,8 +63,9 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteById(@PathVariable UUID id) {
-        var user = userService.deleteUserById(id);
+    public ResponseEntity<Map<String, String>> deleteById(@PathVariable UUID id,
+                                                          JwtAuthenticationToken token) {
+        var user = userService.deleteUserById(id, token);
 
         return ResponseEntity.ok(user);
     }

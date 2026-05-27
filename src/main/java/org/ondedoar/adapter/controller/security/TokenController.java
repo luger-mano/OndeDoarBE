@@ -10,10 +10,7 @@ import org.ondedoar.adapter.request.security.LoginRequestDto;
 import org.ondedoar.adapter.response.security.LoginResponseDto;
 import org.ondedoar.domain.service.security.TokenService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.security.auth.login.CredentialException;
 
