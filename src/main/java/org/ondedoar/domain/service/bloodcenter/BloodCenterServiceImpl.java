@@ -37,14 +37,23 @@ public class BloodCenterServiceImpl implements BloodCenterService {
                 .findAll()
                 .stream()
                 .map(bloodCenter -> {
-                    BloodCenterResponseDto dto =
-                            bloodCenterMapper.bloodCenterToBloodCenterResponseDto(bloodCenter);
-                    dto.setFacadeImageUrl(BUCKET_S3_URL_IMAGE + "bloodcenter.svg");
+                    try {
+                        BloodCenterResponseDto dto = bloodCenterMapper.bloodCenterToBloodCenterResponseDto(bloodCenter);
+                        dto.setFacadeImageUrl(BUCKET_S3_URL_IMAGE + "bloodcenter.svg");
 
-                    String status = BloodCenterOpeningValidator.validate(bloodCenter.getOperation());
-                    dto.setOperation(status);
+                        String operationRaw = bloodCenter.getOperation() != null ? bloodCenter.getOperation() : "";
+                        String status = BloodCenterOpeningValidator.validate(operationRaw);
+                        dto.setOperation(status);
 
-                    return dto;
+                        return dto;
+                    } catch (Exception e) {
+                        System.err.println("Erro ao processar hemocentro ID: " + bloodCenter.getBloodCenterId());
+                        e.printStackTrace();
+
+                        BloodCenterResponseDto fallbackDto = bloodCenterMapper.bloodCenterToBloodCenterResponseDto(bloodCenter);
+                        fallbackDto.setOperation("Unidade fechada | Verifique o site");
+                        return fallbackDto;
+                    }
                 })
                 .collect(Collectors.toList());
     }
