@@ -6,88 +6,140 @@ import java.time.ZoneId;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class BloodCenterOpeningValidator {
 
+    private static final ZoneId ZONE = ZoneId.of("America/Sao_Paulo");
+
+    private static final Map<String, DayOfWeek> DAYS = Map.of(
+            "seg", DayOfWeek.MONDAY,
+            "ter", DayOfWeek.TUESDAY,
+            "qua", DayOfWeek.WEDNESDAY,
+            "qui", DayOfWeek.THURSDAY,
+            "sex", DayOfWeek.FRIDAY,
+            "sab", DayOfWeek.SATURDAY,
+            "dom", DayOfWeek.SUNDAY
+    );
+
     public static String validate(String openingHours) {
+
         if (openingHours == null || openingHours.isBlank()) {
-            return BloodCenterStatus.FECHADO.getSituation() + " | Abre de " + openingHours;
+            return BloodCenterStatus.FECHADO.getSituation();
         }
 
-        String normalized = openingHours.toLowerCase();
+        String normalized = normalize(openingHours);
 
         if (normalized.contains("24h")) {
-            return BloodCenterStatus.VERIFICAR_NO_SITE_OU_LIGANDO.getSituation();
+            return BloodCenterStatus.ABERTO.getSituation();
         }
 
-        ZoneId zone = ZoneId.of("America/Sao_Paulo");
-        DayOfWeek today = LocalDate.now(zone).getDayOfWeek();
-        LocalTime now = LocalTime.now(zone);
-
-        String currentDate;
-
-        switch (today) {
-            case MONDAY: currentDate = "seg"; break;
-            case TUESDAY: currentDate = "ter"; break;
-            case WEDNESDAY: currentDate = "qua"; break;
-            case THURSDAY: currentDate = "qui"; break;
-            case FRIDAY: currentDate = "sex"; break;
-            case SATURDAY: currentDate = "sab"; break;
-            case SUNDAY: currentDate = "dom"; break;
-            default: return BloodCenterStatus.FECHADO.getSituation() + " | Abre de " + openingHours;
-        }
+        DayOfWeek today = LocalDate.now(ZONE).getDayOfWeek();
+        LocalTime now = LocalTime.now(ZONE);
 
         String[] periods = normalized.split("/");
 
         for (String period : periods) {
-            if (matchesCurrentDay(period, currentDate)) {
-                LocalTime start = extractTime(period, true);
-                LocalTime end = extractTime(period, false);
 
-                if (start != null && end != null) {
-                    if (!now.isBefore(start) && !now.isAfter(end)) {
-                        return BloodCenterStatus.ABERTO.getSituation();
-                    }
-                }
+            if (!isToday(period, today)) {
+                continue;
+            }
+
+            LocalTime start = extractTime(period, true);
+            LocalTime end = extractTime(period, false);
+
+            if (start == null || end == null) {
+                continue;
+            }
+
+            if (!now.isBefore(start) && !now.isAfter(end)) {
+                return BloodCenterStatus.ABERTO.getSituation();
             }
         }
 
-        return BloodCenterStatus.FECHADO.getSituation() + " | Abre de " + openingHours;
+        return BloodCenterStatus.FECHADO.getSituation()
+                + " | Abre de "
+                + openingHours;
+    }
+
+    private static String normalize(String text) {
+
+        return text.toLowerCase()
+                .replace("às", "as")
+                .replace("à", "a")
+                .replaceAll("\\s+", " ")
+                .trim();
+    }
+
+    private static boolean isToday(String period, DayOfWeek today) {
+
+        Pattern rangePattern =
+                Pattern.compile("(seg|ter|qua|qui|sex|sab|dom)\\s*a\\s*(seg|ter|qua|qui|sex|sab|dom)");
+
+        Matcher rangeMatcher = rangePattern.matcher(period);
+
+        if (rangeMatcher.find()) {
+
+            DayOfWeek start = DAYS.get(rangeMatcher.group(1));
+            DayOfWeek end = DAYS.get(rangeMatcher.group(2));
+
+            return isWithinRange(today, start, end);
+        }
+
+        for (Map.Entry<String, DayOfWeek> entry : DAYS.entrySet()) {
+
+            if (period.contains(entry.getKey())
+                    && entry.getValue() == today) {
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean isWithinRange(
+            DayOfWeek current,
+            DayOfWeek start,
+            DayOfWeek end
+    ) {
+
+        int currentValue = current.getValue();
+        int startValue = start.getValue();
+        int endValue = end.getValue();
+
+        return currentValue >= startValue
+                && currentValue <= endValue;
     }
 
     private static LocalTime extractTime(String text, boolean start) {
-        Pattern pattern = Pattern.compile("(\\d{1,2})h(?:(\\d{1,2}))?");
+
+        Pattern pattern =
+                Pattern.compile("(\\d{1,2})h(?:(\\d{2}))?");
+
         Matcher matcher = pattern.matcher(text);
 
-        int target = start ? 1 : 2;
-        int count = 0;
+        List<LocalTime> times = new ArrayList<>();
 
         while (matcher.find()) {
-            count++;
-            if (count == target) {
-                int hour = Integer.parseInt(matcher.group(1));
-                int minute = 0;
 
-                if (matcher.group(2) != null && !matcher.group(2).isEmpty()) {
-                    minute = Integer.parseInt(matcher.group(2));
-                }
+            int hour = Integer.parseInt(matcher.group(1));
 
-                return LocalTime.of(hour, minute);
-            }
+            int minute = matcher.group(2) != null
+                    ? Integer.parseInt(matcher.group(2))
+                    : 0;
+
+            times.add(LocalTime.of(hour, minute));
         }
-        return null;
-    }
 
-    private static boolean matchesCurrentDay(String period, String currentDate) {
-        if (period.contains("seg") && period.contains("sex")) {
-            return currentDate.equals("seg")
-                    || currentDate.equals("ter")
-                    || currentDate.equals("qua")
-                    || currentDate.equals("qui")
-                    || currentDate.equals("sex");
+        if (times.size() < 2) {
+            return null;
         }
-        return period.contains(currentDate);
+
+        return start ? times.get(0) : times.get(1);
     }
 }

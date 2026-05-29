@@ -109,7 +109,7 @@ SELECT blood_center_id, '(11) 3286-7372'
 FROM bc;
 
 INSERT INTO tb_blood_center_addresses (full_address, bairro, latitude, longitude, zone, estado)
-VALUES ('Rua Peixoto Gomide 613- 1o subsolo- Cerqueira César-São Paulo-SP ', 'Cerqueira Cesar', 'null', 'null',
+VALUES ('Rua Peixoto Gomide 613- 1o subsolo- Cerqueira César-São Paulo-SP ', 'Cerqueira Cesar', '-23.565053', '-46.661379',
         'CENTRO', 'SP');
 
 WITH bc AS (
