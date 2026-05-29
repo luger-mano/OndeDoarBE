@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/centers").permitAll()
                         .requestMatchers(HttpMethod.GET, "/centers/filter/search").permitAll()
                         .requestMatchers(HttpMethod.GET, "/centers/filter/zone/neighborhoods").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/centers/filter/nearest/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/route/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/address/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/address/filter/region").permitAll()
