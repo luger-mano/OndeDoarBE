@@ -10,6 +10,6 @@ public class UserResponseDto {
 
     private String userName;
     private String middleName;
+    private String mail;
     private BloodType bloodType;
-
 }
