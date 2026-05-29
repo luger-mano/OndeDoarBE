@@ -12,5 +12,4 @@ public class UserResponseDto {
     private String middleName;
     private String mail;
     private BloodType bloodType;
-
 }
