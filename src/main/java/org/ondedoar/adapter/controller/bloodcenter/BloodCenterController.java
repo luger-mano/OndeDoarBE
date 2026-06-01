@@ -34,9 +34,9 @@ public class BloodCenterController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/filter/zone/neighborhoods")
-    public ResponseEntity<List<NeighborhoodsZoneResponseDto>> getBloodCentersGroupedByZone() {
-        var response = bloodCenterService.getBloodCentersGroupedByZone();
+    @GetMapping("/filter/region/neighborhoods")
+    public ResponseEntity<List<NeighborhoodsZoneResponseDto>> getBloodCentersGroupedByRegiao(@RequestParam String regiao) {
+        var response = bloodCenterService.getBloodCentersGroupedByRegiao(regiao);
 
         return ResponseEntity.ok(response);
     }
