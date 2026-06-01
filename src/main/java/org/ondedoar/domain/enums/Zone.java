@@ -6,5 +6,7 @@ public enum Zone {
     NORTE,
     SUL,
     LESTE,
-    OESTE
+    OESTE,
+    INTERIOR,
+    METROPOLIS
 }
