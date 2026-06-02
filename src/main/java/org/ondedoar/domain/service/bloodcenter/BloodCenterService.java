@@ -13,7 +13,7 @@ public interface BloodCenterService {
 
     List<BloodCenterResponseDto> getBloodCentersByAddressContainingIgnoreCase(String search);
 
-    List<NeighborhoodsZoneResponseDto> getBloodCentersGroupedByZone();
+    List<NeighborhoodsZoneResponseDto> getBloodCentersGroupedByRegiao(String regiao);
 
     List<NearestBloodCenterResponseDto>  getNearestBloodCenters(GeolocationStartingPointRequestDto startingPointRequestDto);
 }

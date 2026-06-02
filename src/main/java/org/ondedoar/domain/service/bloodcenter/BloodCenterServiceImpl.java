@@ -21,6 +21,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -40,9 +41,8 @@ public class BloodCenterServiceImpl implements BloodCenterService {
     @Cacheable("bloodCenters")
     public List<BloodCenterResponseDto> getAllBloodCenters() {
 
-
         return bloodCenterRepository
-                .findAll()
+                .findAllByOrderByNameAsc()
                 .stream()
                 .map(bloodCenter -> {
                     try {
@@ -88,116 +88,89 @@ public class BloodCenterServiceImpl implements BloodCenterService {
 
     @Override
     @Cacheable("bloodCentersGroupedByZone")
-    public List<NeighborhoodsZoneResponseDto> getBloodCentersGroupedByZone() {
+    public List<NeighborhoodsZoneResponseDto> getBloodCentersGroupedByRegiao(String regiao) {
 
-        List<BloodCenter> bloodCenters = bloodCenterRepository.findAll();
+        System.out.println("Buscando pela região: " + regiao);
 
-        bloodCenters.forEach(bloodCenter -> {
+        List<BloodCenter> bloodCenters = bloodCenterRepository.findAllByBloodCenterAddressRegiaoIgnoreCaseOrderByNameAsc(regiao);
 
-            BloodCenterAddress address =
-                    bloodCenter.getBloodCenterAddress();
+        final Zone fallbackZone;
+        if ("INTERIOR".equalsIgnoreCase(regiao)) {
+            fallbackZone = Zone.INTERIOR;
+        } else if ("METROPOLE".equalsIgnoreCase(regiao) || "METROPOLIS".equalsIgnoreCase(regiao)) {
+            fallbackZone = Zone.METROPOLIS;
+        } else {
+            fallbackZone = Zone.CENTRO;
+        }
 
-            if (address == null) {
-                System.out.println(
-                        "Address null: " + bloodCenter.getName()
-                );
+        Map<Zone, Map<String, List<BloodCenter>>> grouped = bloodCenters.stream()
+                .filter(bloodCenter -> {
+                    BloodCenterAddress address = bloodCenter.getBloodCenterAddress();
+                    return address != null;
+                })
+                .collect(Collectors.groupingBy(
+                        bloodCenter -> {
+                            Zone zone = bloodCenter.getBloodCenterAddress().getZone();
 
-            } else if (address.getZone() == null) {
-                System.out.println(
-                        "Zone null: " + bloodCenter.getName()
-                );
+                            return zone != null ? zone : fallbackZone;
+                        },
+                        LinkedHashMap::new,
+                        Collectors.groupingBy(bloodCenter -> {
+                            String bairro = bloodCenter.getBloodCenterAddress().getBairro();
 
-            } else if (address.getBairro() == null) {
-                System.out.println(
-                        "Bairro null: " + bloodCenter.getName()
-                );
-            }
-        });
-
-        Map<Zone, Map<String, List<BloodCenter>>> grouped =
-                bloodCenters.stream()
-
-                        .filter(bloodCenter -> {
-                            BloodCenterAddress address =
-                                    bloodCenter.getBloodCenterAddress();
-
-                            return address != null
-                                    && address.getZone() != null
-                                    && address.getBairro() != null;
+                            return (bairro != null && !bairro.isBlank())
+                                    ? bairro
+                                    : bloodCenter.getBloodCenterAddress().getMunicipio();
                         })
+                ));
 
-                        .collect(Collectors.groupingBy(
-                                bloodCenter ->
-                                        bloodCenter.getBloodCenterAddress().getZone(),
-
-                                Collectors.groupingBy(
-                                        bloodCenter ->
-                                                bloodCenter.getBloodCenterAddress().getBairro()
-                                )
-                        ));
-
-        return grouped.entrySet()
-                .stream()
+        return grouped.entrySet().stream()
                 .map(zoneEntry -> {
-
-                    NeighborhoodsZoneResponseDto zoneDto =
-                            new NeighborhoodsZoneResponseDto();
-
+                    NeighborhoodsZoneResponseDto zoneDto = new NeighborhoodsZoneResponseDto();
                     zoneDto.setZone(zoneEntry.getKey());
 
-                    List<NeighborhoodsBloodCentersResponseDto> neighborhoods =
-                            zoneEntry.getValue()
-                                    .values()
-                                    .stream()
-                                    .map(centers -> {
+                    List<NeighborhoodsBloodCentersResponseDto> neighborhoods = zoneEntry.getValue()
+                            .values()
+                            .stream()
+                            .map(centers -> {
+                                BloodCenter firstCenter = centers.get(0);
+                                NeighborhoodsBloodCentersResponseDto dto = bloodCenterMapper
+                                        .bloodCenterToNeighborhoodResponseDto(firstCenter);
 
-                                        BloodCenter firstCenter =
-                                                centers.get(0);
+                                String neighborhoodName = firstCenter.getBloodCenterAddress().getBairro();
+                                if (neighborhoodName == null || neighborhoodName.isBlank()) {
+                                    dto.setBairro(firstCenter.getBloodCenterAddress().getMunicipio());
+                                }
 
-                                        NeighborhoodsBloodCentersResponseDto dto =
-                                                bloodCenterMapper
-                                                        .bloodCenterToNeighborhoodResponseDto(
-                                                                firstCenter
-                                                        );
+                                List<BloodCenterResponseDto> bloodCenterDtos = centers.stream()
+                                        .map(bloodCenter -> {
+                                            BloodCenterResponseDto responseDto = bloodCenterMapper
+                                                    .bloodCenterToBloodCenterResponseDto(bloodCenter);
+                                            responseDto.setFacadeImageUrl(BUCKET_S3_URL_IMAGE + "bloodcenter.svg");
+                                            String status = BloodCenterOpeningValidator.validate(bloodCenter.getOperation());
+                                            responseDto.setOperation(status);
+                                            return responseDto;
+                                        })
+                                        .toList();
 
-                                        List<BloodCenterResponseDto> bloodCenterDtos =
-                                                centers.stream()
-                                                        .map(bloodCenter -> {
-
-                                                            BloodCenterResponseDto responseDto =
-                                                                    bloodCenterMapper
-                                                                            .bloodCenterToBloodCenterResponseDto(
-                                                                                    bloodCenter
-                                                                            );
-
-                                                            responseDto.setFacadeImageUrl(
-                                                                    BUCKET_S3_URL_IMAGE + "bloodcenter.svg"
-                                                            );
-
-                                                            String status =
-                                                                    BloodCenterOpeningValidator
-                                                                            .validate(
-                                                                                    bloodCenter.getOperation()
-                                                                            );
-
-                                                            responseDto.setOperation(status);
-
-                                                            return responseDto;
-                                                        })
-                                                        .toList();
-                                        dto.setNeighborhoodImageUrl("https://blood-centers-images.s3.us-east-1.amazonaws.com/"
-                                                + "neighborhood.svg");
-                                        dto.setBloodCenters(bloodCenterDtos);
-
-                                        return dto;
-                                    })
-                                    .toList();
+                                dto.setNeighborhoodImageUrl("https://blood-centers-images.s3.us-east-1.amazonaws.com/neighborhood.svg");
+                                dto.setBloodCenters(bloodCenterDtos);
+                                return dto;
+                            })
+                            .sorted(Comparator.comparing(NeighborhoodsBloodCentersResponseDto::getBairro, Comparator.nullsLast(String::compareTo)))
+                            .collect(Collectors.toList());
 
                     zoneDto.setBairros(neighborhoods);
-
                     return zoneDto;
                 })
-                .toList();
+                .sorted((z1, z2) -> {
+                    boolean isZ1Centro = Zone.CENTRO.equals(z1.getZone());
+                    boolean isZ2Centro = Zone.CENTRO.equals(z2.getZone());
+                    if (isZ1Centro && !isZ2Centro) return -1;
+                    if (!isZ1Centro && isZ2Centro) return 1;
+                    return Integer.compare(z2.getBairros().size(), z1.getBairros().size());
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -208,7 +181,7 @@ public class BloodCenterServiceImpl implements BloodCenterService {
             double startLat = Double.parseDouble(startingPointRequestDto.getLatitudeStarting());
             double startLon = Double.parseDouble(startingPointRequestDto.getLongitudeStarting());
 
-            List<BloodCenter> bloodCenters = bloodCenterRepository.findAll();
+            List<BloodCenter> bloodCenters = bloodCenterRepository.findAllByOrderByNameAsc();
 
             List<NearestBloodCenterResponseDto> nearestBloodCenters = bloodCenters.stream()
                     .filter(b ->
@@ -227,6 +200,13 @@ public class BloodCenterServiceImpl implements BloodCenterService {
                         NearestBloodCenterResponseDto responseDto = new NearestBloodCenterResponseDto();
                         responseDto.setBloodCenterId(b.getBloodCenterId());
                         responseDto.setName(b.getName());
+                        responseDto.setPhone(b.getPhone());
+                        responseDto.setAddress(
+                                bloodCenterMapper
+                                        .bloodCenterAddressToAddressResponseDto(
+                                                b.getBloodCenterAddress()));
+                        responseDto.setOperation(b.getOperation());
+                        responseDto.setFacadeImageUrl(BUCKET_S3_URL_IMAGE + "bloodcenter.svg");
                         responseDto.setLatitude(destLat);
                         responseDto.setLongitude(destLon);
                         responseDto.setDistanceKm(distLinear);
