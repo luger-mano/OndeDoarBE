@@ -205,7 +205,6 @@ public class BloodCenterServiceImpl implements BloodCenterService {
                                 bloodCenterMapper
                                         .bloodCenterAddressToAddressResponseDto(
                                                 b.getBloodCenterAddress()));
-
                         String operationRaw = b.getOperation() != null ? b.getOperation() : "";
                         String status = BloodCenterOpeningValidator.validate(operationRaw);
                         responseDto.setOperation(status);
