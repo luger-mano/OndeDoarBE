@@ -205,7 +205,11 @@ public class BloodCenterServiceImpl implements BloodCenterService {
                                 bloodCenterMapper
                                         .bloodCenterAddressToAddressResponseDto(
                                                 b.getBloodCenterAddress()));
-                        responseDto.setOperation(b.getOperation());
+
+                        String operationRaw = b.getOperation() != null ? b.getOperation() : "";
+                        String status = BloodCenterOpeningValidator.validate(operationRaw);
+                        responseDto.setOperation(status);
+
                         responseDto.setFacadeImageUrl(BUCKET_S3_URL_IMAGE + "bloodcenter.svg");
                         responseDto.setLatitude(destLat);
                         responseDto.setLongitude(destLon);
