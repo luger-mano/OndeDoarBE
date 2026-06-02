@@ -38,6 +38,5 @@ services:
     depends_on:
       postgresql:
         condition: service_healthy
-
 volumes:
   postgresql-data:
