@@ -139,7 +139,6 @@ public class BloodCenterOpeningValidator {
         if (times.size() < 2) {
             return null;
         }
-
         return start ? times.get(0) : times.get(1);
     }
 }
