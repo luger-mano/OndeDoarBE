@@ -2,9 +2,11 @@ package org.ondedoar.utils.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.ondedoar.adapter.response.address.AddressResponseDto;
 import org.ondedoar.adapter.response.address.NeighborhoodsBloodCentersResponseDto;
 import org.ondedoar.adapter.response.bloodcenter.BloodCenterResponseDto;
 import org.ondedoar.domain.model.bloodcenter.BloodCenter;
+import org.ondedoar.domain.model.bloodcenter.BloodCenterAddress;
 
 @Mapper(componentModel = "spring")
 public interface BloodCenterMapper {
@@ -17,4 +19,7 @@ public interface BloodCenterMapper {
     @Mapping(target = "bloodCenters", ignore = true)
     NeighborhoodsBloodCentersResponseDto
     bloodCenterToNeighborhoodResponseDto(BloodCenter bloodCenter);
+
+
+    AddressResponseDto bloodCenterAddressToAddressResponseDto(BloodCenterAddress bloodCenterAddress);
 }

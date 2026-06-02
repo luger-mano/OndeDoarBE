@@ -181,7 +181,7 @@ public class BloodCenterServiceImpl implements BloodCenterService {
             double startLat = Double.parseDouble(startingPointRequestDto.getLatitudeStarting());
             double startLon = Double.parseDouble(startingPointRequestDto.getLongitudeStarting());
 
-            List<BloodCenter> bloodCenters = bloodCenterRepository.findAll();
+            List<BloodCenter> bloodCenters = bloodCenterRepository.findAllByOrderByNameAsc();
 
             List<NearestBloodCenterResponseDto> nearestBloodCenters = bloodCenters.stream()
                     .filter(b ->
@@ -200,6 +200,13 @@ public class BloodCenterServiceImpl implements BloodCenterService {
                         NearestBloodCenterResponseDto responseDto = new NearestBloodCenterResponseDto();
                         responseDto.setBloodCenterId(b.getBloodCenterId());
                         responseDto.setName(b.getName());
+                        responseDto.setPhone(b.getPhone());
+                        responseDto.setAddress(
+                                bloodCenterMapper
+                                        .bloodCenterAddressToAddressResponseDto(
+                                                b.getBloodCenterAddress()));
+                        responseDto.setOperation(b.getOperation());
+                        responseDto.setFacadeImageUrl(BUCKET_S3_URL_IMAGE + "bloodcenter.svg");
                         responseDto.setLatitude(destLat);
                         responseDto.setLongitude(destLon);
                         responseDto.setDistanceKm(distLinear);
