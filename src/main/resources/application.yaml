@@ -1,7 +1,16 @@
+server:
+  servlet:
+    context-path: /api
+
 spring:
   application:
     name: ondedoar
 
+  logging:
+    level:
+      org:
+        springframework:
+          security: DEBUG
   cache:
     type: redis
 

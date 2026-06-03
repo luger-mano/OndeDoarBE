@@ -108,19 +108,36 @@ public class UserServiceImpl implements UserService {
 
         if (user.getUserId().equals(UUID.fromString(token.getName()))) {
 
-            user.setUserName(requestDto.getUserName());
-            user.setMiddleName(requestDto.getMiddleName());
-            user.setMail(requestDto.getMail());
-
+            if (requestDto.getUserName() != null &&
+                    !requestDto.getUserName().isBlank()) {
+                user.setUserName(requestDto.getUserName());
+            }
+            if (requestDto.getMiddleName() != null &&
+                    !requestDto.getMiddleName().isBlank()) {
+                user.setMiddleName(requestDto.getMiddleName());
+            }
+            if (requestDto.getMail() != null &&
+                    !requestDto.getMail().isBlank()) {
+                user.setMail(requestDto.getMail());
+            }
             if (requestDto.getPassword() != null &&
                     !requestDto.getPassword().isBlank()) {
-
                 user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
             }
 
-            user.setPhone(requestDto.getPhone());
-            user.setBloodType(Enum.valueOf(BloodType.class, requestDto.getBloodType()));
-            user.setState(Enum.valueOf(BrazilianState.class, requestDto.getState()));
+            if (requestDto.getPhone() != null &&
+                    !requestDto.getPhone().isBlank()) {
+                user.setPhone(requestDto.getPhone());
+            }
+            if (requestDto.getBloodType() != null &&
+                    !requestDto.getBloodType().isBlank()) {
+                user.setBloodType(Enum.valueOf(BloodType.class, requestDto.getBloodType()));
+            }
+
+            if (requestDto.getState() != null &&
+                    !requestDto.getState().isBlank()) {
+                user.setState(Enum.valueOf(BrazilianState.class, requestDto.getState()));
+            }
 
             User userUpdated = userRepository.save(user);
 
