@@ -2,12 +2,14 @@ package org.ondedoar.domain.service.bloodcenter;
 
 import org.ondedoar.domain.enums.BloodCenterStatus;
 
-import java.time.ZoneId;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,11 +25,11 @@ public class BloodCenterOpeningValidator {
             "qui", DayOfWeek.THURSDAY,
             "sex", DayOfWeek.FRIDAY,
             "sab", DayOfWeek.SATURDAY,
-            "dom", DayOfWeek.SUNDAY
+            "dom", DayOfWeek.SUNDAY,
+            "domingo", DayOfWeek.SUNDAY
     );
 
     public static String validate(String openingHours) {
-
         if (openingHours == null || openingHours.isBlank()) {
             return BloodCenterStatus.FECHADO.getSituation();
         }
@@ -38,36 +40,60 @@ public class BloodCenterOpeningValidator {
             return BloodCenterStatus.ABERTO.getSituation();
         }
 
-        DayOfWeek today = LocalDate.now(ZONE).getDayOfWeek();
+        LocalDate todayDate = LocalDate.now(ZONE);
+        DayOfWeek today = todayDate.getDayOfWeek();
         LocalTime now = LocalTime.now(ZONE);
 
         String[] periods = normalized.split("/");
 
+        boolean opensToday = false;
+        LocalTime latestEndTimeToday = LocalTime.MIN;
+
         for (String period : periods) {
+            if (isDayMatching(period, today)) {
+                opensToday = true;
+                LocalTime start = extractTime(period, true);
+                LocalTime end = extractTime(period, false);
 
-            if (!isToday(period, today)) {
-                continue;
-            }
-
-            LocalTime start = extractTime(period, true);
-            LocalTime end = extractTime(period, false);
-
-            if (start == null || end == null) {
-                continue;
-            }
-
-            if (!now.isBefore(start) && !now.isAfter(end)) {
-                return BloodCenterStatus.ABERTO.getSituation();
+                if (start != null && end != null) {
+                    if (end.isAfter(latestEndTimeToday)) {
+                        latestEndTimeToday = end;
+                    }
+                    if (!now.isBefore(start) && !now.isAfter(end)) {
+                        return BloodCenterStatus.ABERTO.getSituation();
+                    }
+                }
             }
         }
 
-        return BloodCenterStatus.FECHADO.getSituation()
-                + " | Abre de "
-                + openingHours;
+        if (opensToday && now.isBefore(latestEndTimeToday)) {
+            return "Abre hoje às " + getEarliestStartTime(periods, today);
+        }
+
+        for (int i = 1; i <= 7; i++) {
+            LocalDate nextDate = todayDate.plusDays(i);
+            DayOfWeek nextDay = nextDate.getDayOfWeek();
+
+            for (String period : periods) {
+                if (isDayMatching(period, nextDay)) {
+                    String timeStr = getEarliestStartTime(periods, nextDay);
+                    String timeSuffix = timeStr != null ? " às " + timeStr : "";
+
+                    if (i == 1) {
+                        return "Abre amanhã" + timeSuffix;
+                    } else {
+                        String dayName = nextDay.getDisplayName(TextStyle.FULL, new Locale("pt", "BR"));
+                        String formattedDay = dayName.split("-")[0];
+                        return "Abre " + formattedDay + timeSuffix;
+                    }
+                }
+            }
+        }
+
+        return BloodCenterStatus.FECHADO.getSituation() + " | " + openingHours;
     }
 
     private static String normalize(String text) {
-
         return text.toLowerCase()
                 .replace("às", "as")
                 .replace("à", "a")
@@ -75,64 +101,60 @@ public class BloodCenterOpeningValidator {
                 .trim();
     }
 
-    private static boolean isToday(String period, DayOfWeek today) {
-
-        Pattern rangePattern =
-                Pattern.compile("(seg|ter|qua|qui|sex|sab|dom)\\s*a\\s*(seg|ter|qua|qui|sex|sab|dom)");
-
+    private static boolean isDayMatching(String period, DayOfWeek day) {
+        Pattern rangePattern = Pattern.compile("(seg|ter|qua|qui|sex|sab|dom(?:ingo)?)\\s*a\\s*(seg|ter|qua|qui|sex|sab|dom(?:ingo)?)");
         Matcher rangeMatcher = rangePattern.matcher(period);
 
         if (rangeMatcher.find()) {
-
             DayOfWeek start = DAYS.get(rangeMatcher.group(1));
             DayOfWeek end = DAYS.get(rangeMatcher.group(2));
-
-            return isWithinRange(today, start, end);
+            return isWithinRange(day, start, end);
         }
 
         for (Map.Entry<String, DayOfWeek> entry : DAYS.entrySet()) {
-
-            if (period.contains(entry.getKey())
-                    && entry.getValue() == today) {
-
+            if (period.contains(entry.getKey()) && entry.getValue() == day) {
                 return true;
             }
         }
-
         return false;
     }
 
-    private static boolean isWithinRange(
-            DayOfWeek current,
-            DayOfWeek start,
-            DayOfWeek end
-    ) {
-
+    private static boolean isWithinRange(DayOfWeek current, DayOfWeek start, DayOfWeek end) {
         int currentValue = current.getValue();
         int startValue = start.getValue();
         int endValue = end.getValue();
 
-        return currentValue >= startValue
-                && currentValue <= endValue;
+        if (startValue <= endValue) {
+            return currentValue >= startValue && currentValue <= endValue;
+        } else {
+            return currentValue >= startValue || currentValue <= endValue;
+        }
+    }
+
+    private static String getEarliestStartTime(String[] periods, DayOfWeek day) {
+        LocalTime earliest = null;
+        for (String period : periods) {
+            if (isDayMatching(period, day)) {
+                LocalTime start = extractTime(period, true);
+                if (start != null && (earliest == null || start.isBefore(earliest))) {
+                    earliest = start;
+                }
+            }
+        }
+        if (earliest != null) {
+            return String.format("%02dh%02d", earliest.getHour(), earliest.getMinute()).replace("h00", "h");
+        }
+        return null;
     }
 
     private static LocalTime extractTime(String text, boolean start) {
-
-        Pattern pattern =
-                Pattern.compile("(\\d{1,2})h(?:(\\d{2}))?");
-
+        Pattern pattern = Pattern.compile("(\\d{1,2})h(?:(\\d{2}))?");
         Matcher matcher = pattern.matcher(text);
-
         List<LocalTime> times = new ArrayList<>();
 
         while (matcher.find()) {
-
             int hour = Integer.parseInt(matcher.group(1));
-
-            int minute = matcher.group(2) != null
-                    ? Integer.parseInt(matcher.group(2))
-                    : 0;
-
+            int minute = matcher.group(2) != null ? Integer.parseInt(matcher.group(2)) : 0;
             times.add(LocalTime.of(hour, minute));
         }
 
