@@ -14,10 +14,9 @@ spring:
   cache:
     type: redis
 
-  spring:
-    app:
-      frontend:
-        url: https://www.ondedoar.org
+  app:
+    frontend:
+      url: https://www.ondedoar.org
 
   mail:
     host: smtp.gmail.com
