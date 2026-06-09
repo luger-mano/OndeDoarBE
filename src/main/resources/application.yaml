@@ -14,9 +14,10 @@ spring:
   cache:
     type: redis
 
-  app:
-    frontend:
-      url: http://localhost:5173
+  spring:
+    app:
+      frontend:
+        url: https://www.ondedoar.org
 
   mail:
     host: smtp.gmail.com
