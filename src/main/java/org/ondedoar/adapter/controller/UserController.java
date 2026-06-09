@@ -4,10 +4,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.ondedoar.adapter.request.user.ResetPasswordRequestDto;
 import org.ondedoar.adapter.request.user.UserCreatedRequestDto;
 import org.ondedoar.adapter.request.user.UserUpdatedRequestDto;
+import org.ondedoar.adapter.response.security.LoginResponseDto;
 import org.ondedoar.adapter.response.user.UserResponseDto;
 import org.ondedoar.domain.service.user.UserService;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +44,7 @@ public class UserController {
     )
     @PostMapping
     public ResponseEntity<Map<String, String>> createUser(@RequestHeader("x-idempotency-key") String idempotencyKeyHeader,
-                                                          @RequestBody @Valid UserCreatedRequestDto requestDto) {
+                                                          @RequestBody @Valid UserCreatedRequestDto requestDto) throws MessagingException {
         var user = userService.createUser(idempotencyKeyHeader, requestDto);
         return ResponseEntity.ok(user);
     }
@@ -70,5 +73,26 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @PostMapping("/password/forgot")
+    public ResponseEntity<Void> forgotPassword(@RequestParam String mail) throws MessagingException {
+        userService.sendPasswordResetMail(mail);
 
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/password/reset")
+    public ResponseEntity<Map<String, String>> resetPasswordByToken(@RequestParam String token,
+                                                                    @RequestBody ResetPasswordRequestDto requestDto) {
+        var user = userService.resetPasswordByToken(token, requestDto);
+
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/email/verify")
+    public ResponseEntity<LoginResponseDto> verifyEmail(@RequestParam String token) {
+
+        var user = userService.verifyEmail(token);
+
+        return ResponseEntity.ok(user);
+    }
 }

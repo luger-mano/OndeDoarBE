@@ -1,10 +1,13 @@
 package org.ondedoar.domain.service.user;
 
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ondedoar.adapter.request.user.ResetPasswordRequestDto;
 import org.ondedoar.adapter.request.user.UserCreatedRequestDto;
 import org.ondedoar.adapter.request.user.UserUpdatedRequestDto;
+import org.ondedoar.adapter.response.security.LoginResponseDto;
 import org.ondedoar.adapter.response.user.UserResponseDto;
 import org.ondedoar.domain.enums.BloodType;
 import org.ondedoar.domain.enums.BrazilianState;
@@ -12,11 +15,16 @@ import org.ondedoar.domain.model.IdempotencyKey;
 import org.ondedoar.domain.model.User;
 import org.ondedoar.domain.repository.IdempotencyKeyRepository;
 import org.ondedoar.domain.repository.UserRepository;
+import org.ondedoar.domain.service.email.EmailService;
 import org.ondedoar.domain.service.idempotency.IdempotencyKeyService;
+import org.ondedoar.domain.service.security.TokenService;
 import org.ondedoar.infra.exceptions.UserNotFoundException;
 import org.ondedoar.utils.mapper.UserMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -32,13 +40,16 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final TokenService tokenService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final IdempotencyKeyRepository idempotencyKeyRepository;
     private final IdempotencyKeyService idempotencyKeyService;
+    private final EmailService emailService;
+    private final JwtDecoder jwtDecoder;
 
     @Override
     @Transactional
-    public Map<String, String> createUser(String idempotencyKeyHeader, UserCreatedRequestDto requestDto) {
+    public Map<String, String> createUser(String idempotencyKeyHeader, UserCreatedRequestDto requestDto) throws MessagingException {
         try {
             String statusIdempotency;
 
@@ -65,21 +76,26 @@ public class UserServiceImpl implements UserService {
 
             User user = userMapper.userCreatedRequestToUser(requestDto);
 
+            user.setActive(false);
             user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
-            user.setActive(true);
+
 
             User userSaved = userRepository.save(user);
-            log.info("User saved");
+
+            String token = tokenService.generateEmailVerificationToken(userSaved);
+            emailService.sendVerificationEmail(user.getMail(), user.getUserName(), token);
+
+            log.info("User mail verification email");
 
             idempotencyKeyService.createIdempotencyKeyByKeyAndUserId(
                     idempotencyKeyHeader,
-                    String.valueOf(userSaved.getUserId())
+                    String.valueOf(user.getUserId())
             );
             log.info("idempotencyKey created");
             String statusUser = "created";
 
             return mapResponseReceivedConsent(
-                    String.valueOf(userSaved.getUserId()), statusUser
+                    String.valueOf(user.getUserId()), statusUser
             );
         } catch (Exception e) {
             log.error("Error saving user to database", e);
@@ -192,6 +208,65 @@ public class UserServiceImpl implements UserService {
                     ), status);
         }
 
+    }
+
+    @Override
+    public LoginResponseDto verifyEmail(String token) {
+
+        Jwt decodedJwt = jwtDecoder.decode(token);
+
+        String type = decodedJwt
+                .getClaimAsString("type");
+
+        if (!"EMAIL_VERIFICATION".equals(type)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid token");
+        }
+
+        UUID userId =
+                UUID.fromString(decodedJwt.getSubject());
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        user.setActive(true);
+        userRepository.save(user);
+
+        return tokenService.generateTokenForUser(user);
+    }
+
+    @Override
+    public void sendPasswordResetMail(String mail) throws MessagingException {
+        User user = userRepository.findByMail(mail)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        String tokenGenerated = tokenService.generatePasswordResetToken(user);
+
+        emailService.sendVerificationPasswordViaMail(user.getMail(), user.getUserName(), tokenGenerated);
+    }
+
+    @Override
+    @Transactional
+    public Map<String, String> resetPasswordByToken(String token, ResetPasswordRequestDto requestDto) {
+
+        Jwt decodedJwt = jwtDecoder.decode(token);
+        String type = decodedJwt
+                .getClaimAsString("type");
+        if (!"PASSWORD_RESET".equals(type)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid reset token");
+        }
+        UUID userId =
+                UUID.fromString(decodedJwt.getSubject());
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        if (requestDto.getPassword() != null && !requestDto.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
+            userRepository.save(user);
+
+            return mapResponseReceivedConsent(user.getUserId().toString(), "Password reset successful");
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password cannot be empty");
     }
 
     public Map<String, String> mapResponseReceivedConsent(String userId, String status) {
