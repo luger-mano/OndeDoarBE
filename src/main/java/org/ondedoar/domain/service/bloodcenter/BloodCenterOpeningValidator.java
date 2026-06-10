@@ -37,7 +37,7 @@ public class BloodCenterOpeningValidator {
         String normalized = normalize(openingHours);
 
         if (normalized.contains("24h")) {
-            return BloodCenterStatus.ABERTO.getSituation();
+            return BloodCenterStatus.ABERTO.getSituation() + " - "  + openingHours;
         }
 
         LocalDate todayDate = LocalDate.now(ZONE);
@@ -60,14 +60,14 @@ public class BloodCenterOpeningValidator {
                         latestEndTimeToday = end;
                     }
                     if (!now.isBefore(start) && !now.isAfter(end)) {
-                        return BloodCenterStatus.ABERTO.getSituation();
+                        return BloodCenterStatus.ABERTO.getSituation() + " - "  + openingHours;
                     }
                 }
             }
         }
 
         if (opensToday && now.isBefore(latestEndTimeToday)) {
-            return "Abre hoje às " + getEarliestStartTime(periods, today);
+            return "Abre hoje às " + getEarliestStartTime(periods, today) + " - " + openingHours;
         }
 
         for (int i = 1; i <= 7; i++) {
@@ -80,11 +80,11 @@ public class BloodCenterOpeningValidator {
                     String timeSuffix = timeStr != null ? " às " + timeStr : "";
 
                     if (i == 1) {
-                        return "Abre amanhã" + timeSuffix;
+                        return "Abre amanhã" + timeSuffix + " - " + openingHours;
                     } else {
                         String dayName = nextDay.getDisplayName(TextStyle.FULL, new Locale("pt", "BR"));
                         String formattedDay = dayName.split("-")[0];
-                        return "Abre " + formattedDay + timeSuffix;
+                        return "Abre " + formattedDay + timeSuffix + " - " + openingHours;
                     }
                 }
             }
