@@ -16,7 +16,7 @@ spring:
 
   app:
     frontend:
-      url: https://www.ondedoar.org
+      url: https://ondedoar.org
 
   mail:
     host: smtp.gmail.com
