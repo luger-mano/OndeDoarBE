@@ -35,9 +35,10 @@ public class BloodCenterOpeningValidator {
         }
 
         String normalized = normalize(openingHours);
+        String formattedHours = formatOpeningHours(openingHours);
 
         if (normalized.contains("24h")) {
-            return BloodCenterStatus.ABERTO.getSituation() + " - "  + openingHours;
+            return BloodCenterStatus.ABERTO.getSituation() + ": " + formattedHours;
         }
 
         LocalDate todayDate = LocalDate.now(ZONE);
@@ -60,14 +61,14 @@ public class BloodCenterOpeningValidator {
                         latestEndTimeToday = end;
                     }
                     if (!now.isBefore(start) && !now.isAfter(end)) {
-                        return BloodCenterStatus.ABERTO.getSituation() + " - "  + openingHours;
+                        return BloodCenterStatus.ABERTO.getSituation() + ": " + formattedHours;
                     }
                 }
             }
         }
 
         if (opensToday && now.isBefore(latestEndTimeToday)) {
-            return "Abre hoje às " + getEarliestStartTime(periods, today) + " - " + openingHours;
+            return "Abre hoje às " + getEarliestStartTime(periods, today) + ": " + formattedHours;
         }
 
         for (int i = 1; i <= 7; i++) {
@@ -80,17 +81,54 @@ public class BloodCenterOpeningValidator {
                     String timeSuffix = timeStr != null ? " às " + timeStr : "";
 
                     if (i == 1) {
-                        return "Abre amanhã" + timeSuffix + " - " + openingHours;
+                        return "Abre amanhã" + timeSuffix + ": " + formattedHours;
                     } else {
                         String dayName = nextDay.getDisplayName(TextStyle.FULL, new Locale("pt", "BR"));
                         String formattedDay = dayName.split("-")[0];
-                        return "Abre " + formattedDay + timeSuffix + " - " + openingHours;
+                        return "Abre " + formattedDay + timeSuffix + ": " + formattedHours;
                     }
                 }
             }
         }
 
-        return BloodCenterStatus.FECHADO.getSituation() + " | " + openingHours;
+        return BloodCenterStatus.FECHADO.getSituation() + ": " + formattedHours;
+    }
+
+    private static String formatOpeningHours(String openingHours) {
+        if (openingHours == null) return "";
+
+        String[] parts = openingHours.split("/");
+        StringBuilder sb = new StringBuilder();
+
+        for (String part : parts) {
+            String trimmedPart = part.trim();
+            if (trimmedPart.isEmpty()) continue;
+
+            Pattern timePattern = Pattern.compile("\\b\\d{1,2}h");
+            Matcher matcher = timePattern.matcher(trimmedPart);
+
+            if (matcher.find()) {
+                int timeStartIndex = matcher.start();
+
+                String dayPart = trimmedPart.substring(0, timeStartIndex).trim();
+                dayPart = dayPart.replaceAll("^[- ]+|[- ]+$", "");
+
+                String timePart = trimmedPart.substring(timeStartIndex).trim();
+
+                if (sb.length() > 0) {
+                    sb.append(" ");
+                }
+
+                sb.append(dayPart).append(" (").append(timePart).append(")");
+            } else {
+                if (sb.length() > 0) {
+                    sb.append(" ");
+                }
+                sb.append(trimmedPart);
+            }
+        }
+
+        return sb.toString();
     }
 
     private static String normalize(String text) {
