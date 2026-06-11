@@ -38,7 +38,7 @@ public class TokenController {
             }
     )
     @PostMapping
-    public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginRequestDto requestDto) throws CredentialException {
+    public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginRequestDto requestDto) {
         LoginResponseDto responseDto = tokenService.generatesToken(requestDto);
 
         return ResponseEntity.ok(responseDto);
