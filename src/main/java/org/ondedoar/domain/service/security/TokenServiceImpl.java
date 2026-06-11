@@ -34,7 +34,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     @Transactional
-    public LoginResponseDto generatesToken(LoginRequestDto requestDto) throws CredentialException {
+    public LoginResponseDto generatesToken(LoginRequestDto requestDto){
         User user = userRepository.findByMail(requestDto.getMail())
                 .orElseThrow(() -> new UserNotFoundException("..."));
 
@@ -43,7 +43,7 @@ public class TokenServiceImpl implements TokenService {
         }
 
         if (!user.isLoginCorrect(requestDto, passwordEncoder)) {
-            throw new CredentialException("Passwords don't match");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Passwords don't match");
         }
 
         return generateTokenForUser(user);
