@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -20,6 +21,7 @@ public class EmailServiceImpl implements EmailService {
     private String frontendUrl;
 
     @Override
+    @Async
     public void sendVerificationEmail(String mail, String name, String token) throws MessagingException {
 
         String link = frontendUrl + "/?token=" + token;
@@ -249,6 +251,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendVerificationPasswordViaMail(String mail, String name, String token) throws MessagingException {
 
         String link = frontendUrl + "/?token=" + token;
