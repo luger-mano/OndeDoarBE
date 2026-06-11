@@ -5,10 +5,8 @@ import org.ondedoar.adapter.request.security.LoginRequestDto;
 import org.ondedoar.adapter.response.security.LoginResponseDto;
 import org.ondedoar.domain.model.User;
 
-import javax.security.auth.login.CredentialException;
-
 public interface TokenService {
-    LoginResponseDto generatesToken(LoginRequestDto requestDto) throws CredentialException;
+    LoginResponseDto generatesToken(LoginRequestDto requestDto);
 
     String generateEmailVerificationToken(User user);
 

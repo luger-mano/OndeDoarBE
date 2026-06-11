@@ -20,11 +20,13 @@ import org.ondedoar.domain.service.idempotency.IdempotencyKeyService;
 import org.ondedoar.domain.service.security.TokenService;
 import org.ondedoar.infra.exceptions.UserNotFoundException;
 import org.ondedoar.utils.mapper.UserMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -136,8 +138,7 @@ public class UserServiceImpl implements UserService {
                     !requestDto.getMail().isBlank()) {
                 user.setMail(requestDto.getMail());
             }
-            if (requestDto.getPassword() != null &&
-                    !requestDto.getPassword().isBlank()) {
+            if (requestDto.getPassword() != null && !requestDto.getPassword().trim().isEmpty()) {
                 user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
             }
 
@@ -157,7 +158,7 @@ public class UserServiceImpl implements UserService {
 
             User userUpdated = userRepository.save(user);
 
-            log.info("User updated");
+            log.info("User updated successfully with secure field verification");
 
             status = "updated";
 
@@ -176,6 +177,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable("userById")
     public UserResponseDto getUserById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -211,6 +213,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable("verifyEmail")
     public LoginResponseDto verifyEmail(String token) {
 
         Jwt decodedJwt = jwtDecoder.decode(token);
@@ -235,6 +238,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict("passwordResetMail")
     public void sendPasswordResetMail(String mail) throws MessagingException {
         User user = userRepository.findByMail(mail)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -246,6 +250,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @CachePut("passwordByToken")
     public Map<String, String> resetPasswordByToken(String token, ResetPasswordRequestDto requestDto) {
 
         Jwt decodedJwt = jwtDecoder.decode(token);
@@ -260,8 +265,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        if (requestDto.getPassword() != null && !requestDto.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
+        if (requestDto.getPassword() != null && !requestDto.getPassword().trim().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(requestDto.getPassword().trim()));
             userRepository.save(user);
 
             return mapResponseReceivedConsent(user.getUserId().toString(), "Password reset successful");
