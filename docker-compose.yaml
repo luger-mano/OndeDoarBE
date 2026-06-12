@@ -1,24 +1,6 @@
 version: '3.8'
 
 services:
-  postgresql:
-    container_name: postgresql
-    restart: always
-    image: postgres:16
-    environment:
-      POSTGRES_PASSWORD: ondedoar14
-      POSTGRES_USER: root
-      POSTGRES_DB: ondedoar
-    ports:
-      - '5432:5432'
-    volumes:
-      - postgresql-data:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U root -d ondedoar" ]
-      retries: 5
-      timeout: 5s
-      interval: 10s
-      start_period: 30s
 
   redis:
     image: redis:latest
