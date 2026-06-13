@@ -20,9 +20,6 @@ import org.ondedoar.domain.service.idempotency.IdempotencyKeyService;
 import org.ondedoar.domain.service.security.TokenService;
 import org.ondedoar.infra.exceptions.UserNotFoundException;
 import org.ondedoar.utils.mapper.UserMapper;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -177,7 +174,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable("userById")
     public UserResponseDto getUserById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -213,7 +209,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable("verifyEmail")
     public LoginResponseDto verifyEmail(String token) {
 
         Jwt decodedJwt = jwtDecoder.decode(token);
@@ -238,7 +233,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @CacheEvict("passwordResetMail")
     public void sendPasswordResetMail(String mail) throws MessagingException {
         User user = userRepository.findByMail(mail)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -250,7 +244,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @CachePut("passwordByToken")
     public Map<String, String> resetPasswordByToken(String token, ResetPasswordRequestDto requestDto) {
 
         Jwt decodedJwt = jwtDecoder.decode(token);

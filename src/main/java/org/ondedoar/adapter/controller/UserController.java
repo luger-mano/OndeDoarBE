@@ -13,9 +13,11 @@ import org.ondedoar.adapter.request.user.UserUpdatedRequestDto;
 import org.ondedoar.adapter.response.security.LoginResponseDto;
 import org.ondedoar.adapter.response.user.UserResponseDto;
 import org.ondedoar.domain.service.user.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 import java.util.UUID;
@@ -68,6 +70,9 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteById(@PathVariable UUID id,
                                                           JwtAuthenticationToken token) {
+        if (!id.equals(UUID.fromString(token.getName()))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso negado.");
+        }
         var user = userService.deleteUserById(id, token);
 
         return ResponseEntity.ok(user);

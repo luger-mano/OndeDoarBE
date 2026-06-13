@@ -15,7 +15,6 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.security.auth.login.CredentialException;
 import java.time.Instant;
 
 @Slf4j
@@ -34,7 +33,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     @Transactional
-    public LoginResponseDto generatesToken(LoginRequestDto requestDto){
+    public LoginResponseDto generatesToken(LoginRequestDto requestDto) {
         User user = userRepository.findByMail(requestDto.getMail())
                 .orElseThrow(() -> new UserNotFoundException("..."));
 
