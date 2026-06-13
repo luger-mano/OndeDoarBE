@@ -241,7 +241,7 @@ public class EmailServiceImpl implements EmailService {
         MimeMessageHelper helper =
                 new MimeMessageHelper(message, true, "UTF-8");
 
-        helper.setFrom("ondedoar@outlook.com.br");
+        helper.setFrom("contato@ondedoar.org");
         helper.setTo(mail);
         helper.setSubject("Onde Doar - Verificação de E-mail");
 
@@ -316,7 +316,7 @@ public class EmailServiceImpl implements EmailService {
 
 
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom("ondedoar@outlook.com.br");
+        helper.setFrom("contato@ondedoar.org");
         helper.setTo(mail);
         helper.setSubject("Onde Doar - Restauração da Senha");
         helper.setText(html, true);
